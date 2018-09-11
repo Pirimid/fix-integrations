@@ -3,11 +3,14 @@ package com.pirimid.fxfix;
 import quickfix.*;
 import quickfix.field.*;
 import quickfix.fix42.Logon;
+import quickfix.fix42.MarketDataRequest;
 import quickfix.fix42.NewOrderSingle;
+import quickfix.fix50.component.InstrmtGrp;
+import quickfix.fix50.component.RFQReqGrp;
 
 public class StartInitiator {
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws FieldNotFound {
         SocketInitiator socketInitiator = null;
         try {
             SessionSettings initiatorSettings = new SessionSettings(
@@ -40,17 +43,8 @@ public class StartInitiator {
             for(int j = 0; j < 2; j ++){
                 try {
                     Thread.sleep(10000);
-                    NewOrderSingle newOrderSingle = new NewOrderSingle(
-                            new ClOrdID("456"),
-                            new HandlInst('3'),
-                            new Symbol("AJCB"),
-                            new Side(Side.BUY),
-                            new TransactTime(),
-                            new OrdType(OrdType.MARKET)
-                    );
-                    System.out.println("####New Order Sent :" + newOrderSingle.toString());
-                    Session.sendToTarget(newOrderSingle, sessionId);
-
+                    sendMarketDataRequest(sessionId);
+                    sendNewOrderSingle(sessionId);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } catch (SessionNotFound sessionNotFound) {
@@ -61,5 +55,38 @@ public class StartInitiator {
         }  catch (ConfigError configError) {
             configError.printStackTrace();
         }
+    }
+
+    private static void sendNewOrderSingle(SessionID sessionId) throws SessionNotFound {
+        NewOrderSingle newOrderSingle = new NewOrderSingle(
+                new ClOrdID("456"),
+                new HandlInst('3'),
+                new Symbol("AJCB"),
+                new Side(Side.BUY),
+                new TransactTime(),
+                new OrdType(OrdType.MARKET)
+        );
+        System.out.println("####New Order Sent :" + newOrderSingle.toString());
+        Session.sendToTarget(newOrderSingle, sessionId);
+    }
+
+    private static void sendMarketDataRequest(SessionID sessionId) throws SessionNotFound {
+        MarketDataRequest marketDataRequest = new MarketDataRequest(
+                new MDReqID("11"),
+                new SubscriptionRequestType('1'),
+                new MarketDepth(0)
+        );
+        marketDataRequest.set(new MDUpdateType(1));
+        marketDataRequest.set(new NoMDEntryTypes(2));
+        marketDataRequest.set(new NoRelatedSym(1));
+        MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
+        noRelatedSym.set(new Symbol("EUR/USD"));
+        marketDataRequest.addGroup(noRelatedSym);
+        MarketDataRequest.NoMDEntryTypes noMDEntryTypes = new MarketDataRequest.NoMDEntryTypes();
+        noMDEntryTypes.set(new MDEntryType('0'));
+        noMDEntryTypes.set(new MDEntryType('1'));
+        marketDataRequest.addGroup(noMDEntryTypes);
+        System.out.println("####New Marked Data Request Sent: " + marketDataRequest.toString());
+        Session.sendToTarget(marketDataRequest, sessionId);
     }
 }
