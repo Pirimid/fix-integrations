@@ -5,12 +5,10 @@ import quickfix.field.*;
 import quickfix.fix42.Logon;
 import quickfix.fix42.MarketDataRequest;
 import quickfix.fix42.NewOrderSingle;
-import quickfix.fix50.component.InstrmtGrp;
-import quickfix.fix50.component.RFQReqGrp;
 
 public class StartInitiator {
 
-    public static void main(String args[]) throws FieldNotFound {
+    public static void main(String args[]) throws FieldNotFound, InterruptedException {
         SocketInitiator socketInitiator = null;
         try {
             SessionSettings initiatorSettings = new SessionSettings(
@@ -23,7 +21,7 @@ public class StartInitiator {
             MessageFactory messageFactory = new DefaultMessageFactory();
             socketInitiator = new SocketInitiator(initiatorApplication, fileStoreFactory, initiatorSettings, fileLogFactory, messageFactory);
             socketInitiator.start();
-            SessionID sessionId =  (SessionID) socketInitiator.getSessions().get(0);
+            SessionID sessionId = (SessionID) socketInitiator.getSessions().get(0);
             Session.lookupSession(sessionId).logon();
 
 
@@ -39,20 +37,17 @@ public class StartInitiator {
                 sessionNotFound.printStackTrace();
             }
 
-
-            for(int j = 0; j < 2; j ++){
-                try {
-                    Thread.sleep(10000);
-                    sendMarketDataRequest(sessionId);
-                    sendNewOrderSingle(sessionId);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (SessionNotFound sessionNotFound) {
-                    sessionNotFound.printStackTrace();
-                }
+            try {
+                Thread.sleep(10000);
+                sendMarketDataRequest(sessionId);
+                sendNewOrderSingle(sessionId);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (SessionNotFound sessionNotFound) {
+                sessionNotFound.printStackTrace();
             }
 
-        }  catch (ConfigError configError) {
+        } catch (ConfigError configError) {
             configError.printStackTrace();
         }
     }

@@ -1,10 +1,7 @@
 package com.pirimid.fxfix;
 
 import quickfix.*;
-import quickfix.field.BidSpotRate;
 import quickfix.field.MDEntryPx;
-import quickfix.field.MDReqID;
-import quickfix.fix42.MarketDataSnapshotFullRefresh;
 
 public class FxFixInitiator extends MessageCracker implements Application {
 
@@ -45,10 +42,10 @@ public class FxFixInitiator extends MessageCracker implements Application {
     }
 
     public void onMessage(quickfix.fix42.MarketDataSnapshotFullRefresh response, SessionID sessionId) throws FieldNotFound {
-        System.out.println("Request Id: " + response.getMDReqID().toString());
+        String MDReqId = response.getMDReqID().toString();
         MDEntryPx mdEntryPx = new MDEntryPx();
         Double value = response.getField(mdEntryPx).getValue();
-        System.out.println("Value: " + value);
+        System.out.println("MDReqId: " + MDReqId + " | Value: " + value);
     }
 
     public void onMessage(quickfix.fix42.ExecutionReport response, SessionID sessionId) throws FieldNotFound {

@@ -1,6 +1,6 @@
 package com.pirimid.fxfix;
 
-import com.pirimid.utility.PriceGenerator;
+import com.pirimid.utility.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickfix.*;
@@ -69,8 +69,28 @@ public class FxFixAcceptor extends MessageCracker implements Application {
         System.out.println("###Subscriptoin Request Type: " + order.getSubscriptionRequestType().toString());
         System.out.println("###Market Depth: " + order.getMarketDepth().toString());
 
-        sendMarketDataFullRefreshToClient(order, sessionID);
+        startSendingMarketDataFullRefresh(order, sessionID);
 
+    }
+
+    private void startSendingMarketDataFullRefresh(MarketDataRequest order, SessionID sessionID) {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Double price = Helper.generatePrice();
+                while (Session.doesSessionExist(sessionID)) {
+                    System.out.println("Sending new price to: " + sessionID);
+                    sendMarketDataFullRefreshToClient(order, sessionID, price);
+                    price = Helper.generateNextPrice(price);
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        thread.start();
     }
 
     public void sendMessageToClient(quickfix.fix42.NewOrderSingle order, SessionID sessionID) {
@@ -93,34 +113,33 @@ public class FxFixAcceptor extends MessageCracker implements Application {
         }
     }
 
-    public void sendMarketDataFullRefreshToClient(MarketDataRequest order, SessionID sessionID) {
+    public void sendMarketDataFullRefreshToClient(MarketDataRequest order, SessionID sessionID, Double price) {
         List<Group> groups = order.getGroups(NoRelatedSym.FIELD);
 
         for (Group group : groups) {
             try {
                 Symbol symbol = new Symbol(group.getString(Symbol.FIELD));
                 List<Group> mdEntries = order.getGroups(NoMDEntryTypes.FIELD);
-                MarketDataSnapshotFullRefresh m = new MarketDataSnapshotFullRefresh(symbol);
-                m.set(order.getMDReqID());
-                m.set(new NoMDEntries(mdEntries.size()));
-                m.setField(order.getMarketDepth());
+                MarketDataSnapshotFullRefresh marketDataSnapshotFullRefresh = new MarketDataSnapshotFullRefresh(symbol);
+                marketDataSnapshotFullRefresh.set(order.getMDReqID());
+                marketDataSnapshotFullRefresh.set(new NoMDEntries(mdEntries.size()));
+                marketDataSnapshotFullRefresh.setField(order.getMarketDepth());
                 for (int i = 0; i < mdEntries.size(); i++) {
-                    Group entry = mdEntries.get(i);
                     MarketDataSnapshotFullRefresh.NoMDEntries mdEntryGroup = new MarketDataSnapshotFullRefresh.NoMDEntries();
                     mdEntryGroup.set(new MDEntryType('0'));
                     mdEntryGroup.setField(new MDEntryID("MDEntryId" + i));
-                    mdEntryGroup.set(new MDEntryPx(123.123));
+                    mdEntryGroup.set(new MDEntryPx(price));
                     mdEntryGroup.set(new MDEntrySize(10000000));
                     mdEntryGroup.set(new QuoteEntryID("QuoteEntryId" + i));
                     mdEntryGroup.set(new MDEntryPositionNo(4));
                     mdEntryGroup.setField(new MDQuoteType(1));
                     mdEntryGroup.set(new MDEntryType('1'));
-                    m.addGroup(mdEntryGroup);
+                    marketDataSnapshotFullRefresh.addGroup(mdEntryGroup);
                 }
                 SettlDate settlDate = new SettlDate("20171117");
-                m.setField(settlDate);
+                marketDataSnapshotFullRefresh.setField(settlDate);
 
-                Session.sendToTarget(m, sessionID);
+                Session.sendToTarget(marketDataSnapshotFullRefresh, sessionID);
             } catch (FieldNotFound fieldNotFound) {
                 fieldNotFound.printStackTrace();
             } catch (SessionNotFound sessionNotFound) {
