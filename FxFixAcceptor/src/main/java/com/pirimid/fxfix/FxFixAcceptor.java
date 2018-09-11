@@ -2,6 +2,11 @@ package com.pirimid.fxfix;
 
 import quickfix.*;
 import quickfix.field.*;
+import quickfix.fix42.MarketDataRequest;
+import quickfix.fix42.MarketDataSnapshotFullRefresh;
+import quickfix.fix42.NewOrderSingle;
+
+import java.util.List;
 
 /**
  * A Fix Acceptor implementation for FX.
@@ -43,7 +48,7 @@ public class FxFixAcceptor extends MessageCracker implements Application {
         crack(message, sessionID);
     }
 
-    public void onMessage(quickfix.fix42.NewOrderSingle order, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
+    public void onMessage(NewOrderSingle order, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
         System.out.println("###NewOrder Received:" + order.toString());
         System.out.println("###Symbol" + order.getSymbol().toString());
         System.out.println("###Side" + order.getSide().toString());
@@ -51,8 +56,16 @@ public class FxFixAcceptor extends MessageCracker implements Application {
         System.out.println("###TransactioTime" + order.getTransactTime().toString());
 
         sendMessageToClient(order, sessionID);
+    }
 
+    public void onMessage(quickfix.fix42.MarketDataRequest order, SessionID sessionID) throws FieldNotFound {
+        System.out.println("###New Market Data Request Order Received: " + order.toString());
+        System.out.println("###Market Data Request Id: " + order.getMDReqID().toString());
+        System.out.println("###Subscriptoin Request Type: " + order.getSubscriptionRequestType().toString());
+        System.out.println("###Market Depth: " + order.getMarketDepth().toString());
 
+        // TODO: Create send message to client method for Market Data Request
+//        sendMessageToClient(order, sessionID);
     }
 
     public void sendMessageToClient(quickfix.fix42.NewOrderSingle order, SessionID sessionID) {
