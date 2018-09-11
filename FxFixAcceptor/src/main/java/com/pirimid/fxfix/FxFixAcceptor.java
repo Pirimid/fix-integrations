@@ -79,7 +79,6 @@ public class FxFixAcceptor extends MessageCracker implements Application {
             public void run() {
                 Double price = Helper.generatePrice();
                 while (Session.doesSessionExist(sessionID)) {
-                    System.out.println("Sending new price to: " + sessionID);
                     sendMarketDataFullRefreshToClient(order, sessionID, price);
                     price = Helper.generateNextPrice(price);
                     try {

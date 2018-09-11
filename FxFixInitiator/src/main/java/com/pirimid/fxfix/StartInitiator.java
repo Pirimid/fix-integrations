@@ -6,7 +6,11 @@ import quickfix.fix42.Logon;
 import quickfix.fix42.MarketDataRequest;
 import quickfix.fix42.NewOrderSingle;
 
+import java.util.concurrent.CountDownLatch;
+
 public class StartInitiator {
+
+    private static CountDownLatch shutdownLatch = new CountDownLatch(1);
 
     public static void main(String args[]) throws FieldNotFound, InterruptedException {
         SocketInitiator socketInitiator = null;
@@ -40,7 +44,8 @@ public class StartInitiator {
             try {
                 Thread.sleep(10000);
                 sendMarketDataRequest(sessionId);
-                sendNewOrderSingle(sessionId);
+//                sendNewOrderSingle(sessionId);
+                shutdownLatch.await();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (SessionNotFound sessionNotFound) {
@@ -50,20 +55,21 @@ public class StartInitiator {
         } catch (ConfigError configError) {
             configError.printStackTrace();
         }
+
     }
 
-    private static void sendNewOrderSingle(SessionID sessionId) throws SessionNotFound {
-        NewOrderSingle newOrderSingle = new NewOrderSingle(
-                new ClOrdID("456"),
-                new HandlInst('3'),
-                new Symbol("AJCB"),
-                new Side(Side.BUY),
-                new TransactTime(),
-                new OrdType(OrdType.MARKET)
-        );
-        System.out.println("####New Order Sent :" + newOrderSingle.toString());
-        Session.sendToTarget(newOrderSingle, sessionId);
-    }
+//    private static void sendNewOrderSingle(SessionID sessionId) throws SessionNotFound {
+//        NewOrderSingle newOrderSingle = new NewOrderSingle(
+//                new ClOrdID("456"),
+//                new HandlInst('3'),
+//                new Symbol("AJCB"),
+//                new Side(Side.BUY),
+//                new TransactTime(),
+//                new OrdType(OrdType.MARKET)
+//        );
+//        System.out.println("####New Order Sent :" + newOrderSingle.toString());
+//        Session.sendToTarget(newOrderSingle, sessionId);
+//    }
 
     private static void sendMarketDataRequest(SessionID sessionId) throws SessionNotFound {
         MarketDataRequest marketDataRequest = new MarketDataRequest(
