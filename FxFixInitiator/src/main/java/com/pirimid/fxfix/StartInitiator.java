@@ -74,18 +74,20 @@ public class StartInitiator {
         MarketDataRequest marketDataRequest = new MarketDataRequest(
                 new MDReqID("11"),
                 new SubscriptionRequestType('1'),
-                new MarketDepth(0)
+                new MarketDepth(15)
         );
-        marketDataRequest.set(new MDUpdateType(1));
+        marketDataRequest.set(new MDUpdateType(0));
         marketDataRequest.set(new NoMDEntryTypes(2));
         marketDataRequest.set(new NoRelatedSym(1));
         MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
         noRelatedSym.set(new Symbol("EUR/USD"));
         marketDataRequest.addGroup(noRelatedSym);
-        MarketDataRequest.NoMDEntryTypes noMDEntryTypes = new MarketDataRequest.NoMDEntryTypes();
-        noMDEntryTypes.set(new MDEntryType('0'));
-        noMDEntryTypes.set(new MDEntryType('1'));
-        marketDataRequest.addGroup(noMDEntryTypes);
+        MarketDataRequest.NoMDEntryTypes noMDEntryType1 = new MarketDataRequest.NoMDEntryTypes();
+        noMDEntryType1.set(new MDEntryType('0'));
+        marketDataRequest.addGroup(noMDEntryType1);
+        MarketDataRequest.NoMDEntryTypes noMDEntryType2 = new MarketDataRequest.NoMDEntryTypes();
+        noMDEntryType2.set(new MDEntryType('1'));
+        marketDataRequest.addGroup(noMDEntryType2);
         System.out.println("####New Marked Data Request Sent: " + marketDataRequest.toString());
         Session.sendToTarget(marketDataRequest, sessionId);
     }
