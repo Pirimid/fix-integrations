@@ -77,12 +77,12 @@ public class FxFixAcceptor extends MessageCracker implements Application {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Double price = Helper.generatePrice();
-                while (Session.doesSessionExist(sessionID)) {
+                Double price = 1.16; // Sample price for EUR/USD
+                while (Session.lookupSession(sessionID).isEnabled()) {
                     sendMarketDataFullRefreshToClient(order, sessionID, price);
                     price = Helper.generateNextPrice(price);
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(2000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
