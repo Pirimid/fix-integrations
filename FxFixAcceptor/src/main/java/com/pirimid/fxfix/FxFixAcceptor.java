@@ -78,7 +78,7 @@ public class FxFixAcceptor extends MessageCracker implements Application {
             @Override
             public void run() {
                 Double price = 1.16; // Sample price for EUR/USD
-                while (Session.lookupSession(sessionID).isEnabled()) {
+                while (Session.lookupSession(sessionID).hasResponder()) {
                     sendMarketDataFullRefreshToClient(order, sessionID, price);
                     price = Helper.generateNextPrice(price);
                     try {
