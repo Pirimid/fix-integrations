@@ -17,6 +17,7 @@ import java.util.List;
 public class FxFixAcceptor extends MessageCracker implements Application {
 
     private static final Logger logger = LoggerFactory.getLogger(FxFixAcceptor.class);
+    private ResponseSender responseSender = new ResponseSender();
 
     @Override
     public void onCreate(SessionID sessionID) {
@@ -70,26 +71,7 @@ public class FxFixAcceptor extends MessageCracker implements Application {
         logger.info("###Subscriptoin Request Type: " + order.getSubscriptionRequestType().toString());
         logger.info("###Market Depth: " + order.getMarketDepth().toString());
 
-        startSendingMarketDataFullRefresh(order, sessionID);
-    }
-
-    private void startSendingMarketDataFullRefresh(MarketDataRequest order, SessionID sessionID) {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Double price = 1.16; // Sample price for EUR/USD
-                while (Session.lookupSession(sessionID).hasResponder()) {
-                    sendMarketDataFullRefreshToClient(order, sessionID, price);
-                    price = Helper.generateNextPrice(price);
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-        thread.start();
+        responseSender.startSendingMarketDataFullRefresh(order, sessionID);
     }
 
     public void sendMessageToClient(quickfix.fix42.NewOrderSingle order, SessionID sessionID) {
@@ -145,5 +127,9 @@ public class FxFixAcceptor extends MessageCracker implements Application {
                 sessionNotFound.printStackTrace();
             }
         }
+    }
+
+    public void setResponseSender(ResponseSender responseSender) {
+        this.responseSender = responseSender;
     }
 }
