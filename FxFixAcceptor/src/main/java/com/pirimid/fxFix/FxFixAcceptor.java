@@ -1,4 +1,4 @@
-package com.pirimid.fxfix;
+package com.pirimid.fxFix;
 
 import com.pirimid.utility.Helper;
 import org.slf4j.Logger;
@@ -20,17 +20,17 @@ public class FxFixAcceptor extends MessageCracker implements Application {
 
     @Override
     public void onCreate(SessionID sessionID) {
-
+        logger.info("New session cerated: " + sessionID.toString());
     }
 
     @Override
     public void onLogon(SessionID sessionID) {
-
+        logger.info("Logged on for session: " + sessionID.toString());
     }
 
     @Override
     public void onLogout(SessionID sessionID) {
-
+        logger.info("Logged out of session: " + sessionID.toString());
     }
 
     @Override
@@ -40,7 +40,7 @@ public class FxFixAcceptor extends MessageCracker implements Application {
 
     @Override
     public void fromAdmin(Message message, SessionID sessionID) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, RejectLogon {
-        System.out.println("Admin Message Received (Acceptor) :" + message.toString());
+        logger.info("Admin Message Received (Acceptor) :" + message.toString());
     }
 
     @Override
@@ -50,27 +50,27 @@ public class FxFixAcceptor extends MessageCracker implements Application {
 
     @Override
     public void fromApp(Message message, SessionID sessionID) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
+        logger.info("Message recieved from App: " + message.toString() + " for session: " + sessionID.toString());
         crack(message, sessionID);
     }
 
     public void onMessage(NewOrderSingle order, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
-        System.out.println("###NewOrder Received:" + order.toString());
-        System.out.println("###Symbol" + order.getSymbol().toString());
-        System.out.println("###Side" + order.getSide().toString());
-        System.out.println("###Type" + order.getOrdType().toString());
-        System.out.println("###TransactioTime" + order.getTransactTime().toString());
+        logger.info("###NewOrder Received:" + order.toString());
+        logger.info("###Symbol" + order.getSymbol().toString());
+        logger.info("###Side" + order.getSide().toString());
+        logger.info("###Type" + order.getOrdType().toString());
+        logger.info("###TransactioTime" + order.getTransactTime().toString());
 
         sendMessageToClient(order, sessionID);
     }
 
     public void onMessage(quickfix.fix42.MarketDataRequest order, SessionID sessionID) throws FieldNotFound {
-        System.out.println("###New Market Data Request Order Received: " + order.toString());
-        System.out.println("###Market Data Request Id: " + order.getMDReqID().toString());
-        System.out.println("###Subscriptoin Request Type: " + order.getSubscriptionRequestType().toString());
-        System.out.println("###Market Depth: " + order.getMarketDepth().toString());
+        logger.info("###New Market Data Request Order Received: " + order.toString());
+        logger.info("###Market Data Request Id: " + order.getMDReqID().toString());
+        logger.info("###Subscriptoin Request Type: " + order.getSubscriptionRequestType().toString());
+        logger.info("###Market Depth: " + order.getMarketDepth().toString());
 
         startSendingMarketDataFullRefresh(order, sessionID);
-
     }
 
     private void startSendingMarketDataFullRefresh(MarketDataRequest order, SessionID sessionID) {
@@ -101,7 +101,7 @@ public class FxFixAcceptor extends MessageCracker implements Application {
                     new ExecTransType(ExecTransType.NEW), new OrdStatus(OrdStatus.NEW), order.getSymbol(), order.getSide(),
                     orderQty, new LastShares(0), new LastPx(0), new CumQty(0), new AvgPx(0));
             accept.set(order.getClOrdID());
-            System.out.println("###Sending Order Acceptance:" + accept.toString() + "sessionID:" + sessionID.toString());
+            logger.info("###Sending Order Acceptance:" + accept.toString() + "sessionID:" + sessionID.toString());
             Session.sendToTarget(accept, sessionID);
         } catch (RuntimeException e) {
             LogUtil.logThrowable(sessionID, e.getMessage(), e);

@@ -1,4 +1,4 @@
-package com.pirimid.fxfix;
+package com.pirimid.fxFix;
 
 import quickfix.*;
 
