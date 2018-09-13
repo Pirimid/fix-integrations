@@ -1,5 +1,6 @@
 package com.pirimid.fxFix;
 
+import com.pirimid.uitility.RequestGenerator;
 import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -7,10 +8,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import quickfix.*;
-import quickfix.field.*;
 import quickfix.fix42.MarketDataRequest;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FxFixAcceptorTest extends TestCase {
@@ -26,7 +26,7 @@ public class FxFixAcceptorTest extends TestCase {
 
     @Test
     public void testMarketDataSpotRequest() {
-        MarketDataRequest marketDataSpotRequest = generateTestMarketDataSpotRequest();
+        MarketDataRequest marketDataSpotRequest = RequestGenerator.generateDummyMarketDataSpotRequest();
 
         try {
             application.fromApp(marketDataSpotRequest, sessionID);
@@ -42,27 +42,6 @@ public class FxFixAcceptorTest extends TestCase {
 
         verify(responseSender).startSendingMarketDataFullRefresh(marketDataSpotRequest, sessionID);
 
-    }
-
-    private MarketDataRequest generateTestMarketDataSpotRequest() {
-        MarketDataRequest marketDataRequest = new MarketDataRequest(
-                new MDReqID("11"),
-                new SubscriptionRequestType('1'),
-                new MarketDepth(15)
-        );
-        marketDataRequest.set(new MDUpdateType(0));
-        marketDataRequest.set(new NoMDEntryTypes(2));
-        marketDataRequest.set(new NoRelatedSym(1));
-        MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
-        noRelatedSym.set(new Symbol("EUR/USD"));
-        marketDataRequest.addGroup(noRelatedSym);
-        MarketDataRequest.NoMDEntryTypes noMDEntryType1 = new MarketDataRequest.NoMDEntryTypes();
-        noMDEntryType1.set(new MDEntryType('0'));
-        marketDataRequest.addGroup(noMDEntryType1);
-        MarketDataRequest.NoMDEntryTypes noMDEntryType2 = new MarketDataRequest.NoMDEntryTypes();
-        noMDEntryType2.set(new MDEntryType('1'));
-        marketDataRequest.addGroup(noMDEntryType2);
-        return marketDataRequest;
     }
 
 }
