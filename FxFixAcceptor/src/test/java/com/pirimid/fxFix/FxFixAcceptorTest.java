@@ -10,6 +10,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import quickfix.*;
 import quickfix.fix42.MarketDataRequest;
 
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -40,7 +41,7 @@ public class FxFixAcceptorTest extends TestCase {
             unsupportedMessageType.printStackTrace();
         }
 
-        verify(responseSender).startSendingMarketDataFullRefresh(marketDataSpotRequest, sessionID);
+        verify(responseSender, times(1)).startSendingMarketDataFullRefresh(marketDataSpotRequest, sessionID);
 
     }
 
