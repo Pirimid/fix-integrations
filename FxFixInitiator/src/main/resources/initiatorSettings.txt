@@ -8,7 +8,7 @@ FileLogPath=./Client_Logs
 SenderCompID=FX-FIX-INITIATOR1
 ValidateIncomingMessage=N
 [SESSION]#A single session
-BeginString=FIX.4.2
+BeginString=FIX.4.4
 TargetCompID=FX-FIX-ACCEPTOR
 StartDay=sunday
 EndDay=friday
@@ -19,5 +19,5 @@ CheckLatency=N
 SocketConnectPort=12000
 SocketConnectHost=127.0.0.1
 UseDataDictionary=Y
-DataDictionary=./FIX42.xml
+DataDictionary=./FIX44.xml
 FileStorePath=./Client_Seq_Store
