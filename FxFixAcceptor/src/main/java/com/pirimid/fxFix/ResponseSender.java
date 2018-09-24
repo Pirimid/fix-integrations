@@ -3,8 +3,8 @@ package com.pirimid.fxFix;
 import com.pirimid.utility.Helper;
 import quickfix.*;
 import quickfix.field.*;
-import quickfix.fix42.MarketDataRequest;
-import quickfix.fix42.MarketDataSnapshotFullRefresh;
+import quickfix.fix44.MarketDataRequest;
+import quickfix.fix44.MarketDataSnapshotFullRefresh;
 
 import java.util.List;
 
@@ -36,7 +36,8 @@ public class ResponseSender {
             try {
                 Symbol symbol = new Symbol(group.getString(Symbol.FIELD));
                 List<Group> mdEntries = order.getGroups(NoMDEntryTypes.FIELD);
-                MarketDataSnapshotFullRefresh marketDataSnapshotFullRefresh = new MarketDataSnapshotFullRefresh(symbol);
+                MarketDataSnapshotFullRefresh marketDataSnapshotFullRefresh = new MarketDataSnapshotFullRefresh();
+                marketDataSnapshotFullRefresh.set(symbol);
                 marketDataSnapshotFullRefresh.set(order.getMDReqID());
                 marketDataSnapshotFullRefresh.set(new NoMDEntries(mdEntries.size()));
                 marketDataSnapshotFullRefresh.setField(order.getMarketDepth());

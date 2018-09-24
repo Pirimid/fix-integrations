@@ -8,7 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import quickfix.*;
-import quickfix.fix42.MarketDataRequest;
+import quickfix.fix44.MarketDataRequest;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;

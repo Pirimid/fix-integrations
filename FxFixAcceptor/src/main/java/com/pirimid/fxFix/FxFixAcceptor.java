@@ -1,13 +1,12 @@
 package com.pirimid.fxFix;
 
-import com.pirimid.utility.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickfix.*;
 import quickfix.field.*;
-import quickfix.fix42.MarketDataRequest;
-import quickfix.fix42.MarketDataSnapshotFullRefresh;
-import quickfix.fix42.NewOrderSingle;
+import quickfix.fix44.MarketDataRequest;
+import quickfix.fix44.MarketDataSnapshotFullRefresh;
+import quickfix.fix44.NewOrderSingle;
 
 import java.util.List;
 
@@ -65,7 +64,7 @@ public class FxFixAcceptor extends MessageCracker implements Application {
         sendMessageToClient(order, sessionID);
     }
 
-    public void onMessage(quickfix.fix42.MarketDataRequest order, SessionID sessionID) throws FieldNotFound {
+    public void onMessage(MarketDataRequest order, SessionID sessionID) throws FieldNotFound {
         logger.info("###New Market Data Request Order Received: " + order.toString());
         logger.info("###Market Data Request Id: " + order.getMDReqID().toString());
         logger.info("###Subscriptoin Request Type: " + order.getSubscriptionRequestType().toString());
@@ -74,7 +73,7 @@ public class FxFixAcceptor extends MessageCracker implements Application {
         responseSender.startSendingMarketDataFullRefresh(order, sessionID);
     }
 
-    public void sendMessageToClient(quickfix.fix42.NewOrderSingle order, SessionID sessionID) {
+    public void sendMessageToClient(NewOrderSingle order, SessionID sessionID) {
         try {
             OrderQty orderQty = null;
 
@@ -101,7 +100,8 @@ public class FxFixAcceptor extends MessageCracker implements Application {
             try {
                 Symbol symbol = new Symbol(group.getString(Symbol.FIELD));
                 List<Group> mdEntries = order.getGroups(NoMDEntryTypes.FIELD);
-                MarketDataSnapshotFullRefresh marketDataSnapshotFullRefresh = new MarketDataSnapshotFullRefresh(symbol);
+                MarketDataSnapshotFullRefresh marketDataSnapshotFullRefresh = new MarketDataSnapshotFullRefresh();
+                marketDataSnapshotFullRefresh.set(symbol);
                 marketDataSnapshotFullRefresh.set(order.getMDReqID());
                 marketDataSnapshotFullRefresh.set(new NoMDEntries(mdEntries.size()));
                 marketDataSnapshotFullRefresh.setField(order.getMarketDepth());

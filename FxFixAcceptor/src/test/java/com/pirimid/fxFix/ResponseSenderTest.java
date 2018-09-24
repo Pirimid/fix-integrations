@@ -12,8 +12,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import quickfix.*;
 import quickfix.field.SenderCompID;
 import quickfix.field.TargetCompID;
-import quickfix.fix42.MarketDataRequest;
 import quickfix.fix42.MarketDataSnapshotFullRefresh;
+import quickfix.fix44.MarketDataRequest;
 
 import static org.mockito.Mockito.times;
 

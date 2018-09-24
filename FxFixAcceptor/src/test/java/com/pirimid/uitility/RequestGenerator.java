@@ -1,7 +1,7 @@
 package com.pirimid.uitility;
 
 import quickfix.field.*;
-import quickfix.fix42.MarketDataRequest;
+import quickfix.fix44.MarketDataRequest;
 
 public class RequestGenerator {
 
@@ -25,4 +25,5 @@ public class RequestGenerator {
         marketDataRequest.addGroup(noMDEntryType2);
         return marketDataRequest;
     }
+
 }

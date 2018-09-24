@@ -1,16 +1,18 @@
 package com.pirimid.fxfix;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import quickfix.*;
 import quickfix.field.*;
-import quickfix.fix42.Logon;
-import quickfix.fix42.MarketDataRequest;
-import quickfix.fix42.NewOrderSingle;
+import quickfix.fix44.Logon;
+import quickfix.fix44.MarketDataRequest;
 
 import java.util.concurrent.CountDownLatch;
 
 public class StartInitiator {
 
     private static CountDownLatch shutdownLatch = new CountDownLatch(1);
+    private static final Logger logger = LoggerFactory.getLogger(StartInitiator.class);
 
     public static void main(String args[]) throws FieldNotFound, InterruptedException {
         SocketInitiator socketInitiator = null;
@@ -43,7 +45,8 @@ public class StartInitiator {
 
             try {
                 Thread.sleep(10000);
-                sendMarketDataRequest(sessionId);
+                sendMarketDataSpotRequest(sessionId);
+                sendMarketDataFwdRequest(sessionId);
 //                sendNewOrderSingle(sessionId);
                 shutdownLatch.await();
             } catch (InterruptedException e) {
@@ -71,25 +74,41 @@ public class StartInitiator {
 //        Session.sendToTarget(newOrderSingle, sessionId);
 //    }
 
-    private static void sendMarketDataRequest(SessionID sessionId) throws SessionNotFound {
+    private static void sendMarketDataSpotRequest(SessionID sessionId) throws SessionNotFound {
+        MarketDataRequest marketDataRequest = generateNewMarketDataRequest("11");
+        MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
+        noRelatedSym.set(new Symbol("EUR/USD"));
+        marketDataRequest.addGroup(noRelatedSym);
+        logger.info("####New Marked Data Spot Request Sent: " + marketDataRequest.toString());
+        Session.sendToTarget(marketDataRequest, sessionId);
+    }
+
+    private static void sendMarketDataFwdRequest(SessionID sessionId) throws SessionNotFound {
+        MarketDataRequest marketDataRequest = generateNewMarketDataRequest("12");
+        MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
+        noRelatedSym.set(new Symbol("EUR/USD"));
+        noRelatedSym.setField(new SettlType("6"));
+        noRelatedSym.setField(new SettlDate("20181001"));
+        marketDataRequest.addGroup(noRelatedSym);
+        logger.info("####New Marked Data Fwd Request Sent: " + marketDataRequest.toString());
+        Session.sendToTarget(marketDataRequest, sessionId);
+    }
+
+    private static MarketDataRequest generateNewMarketDataRequest(String mdReqId) {
         MarketDataRequest marketDataRequest = new MarketDataRequest(
-                new MDReqID("11"),
+                new MDReqID(mdReqId),
                 new SubscriptionRequestType('1'),
-                new MarketDepth(15)
+                new MarketDepth(0)
         );
         marketDataRequest.set(new MDUpdateType(0));
         marketDataRequest.set(new NoMDEntryTypes(2));
         marketDataRequest.set(new NoRelatedSym(1));
-        MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
-        noRelatedSym.set(new Symbol("EUR/USD"));
-        marketDataRequest.addGroup(noRelatedSym);
         MarketDataRequest.NoMDEntryTypes noMDEntryType1 = new MarketDataRequest.NoMDEntryTypes();
         noMDEntryType1.set(new MDEntryType('0'));
         marketDataRequest.addGroup(noMDEntryType1);
         MarketDataRequest.NoMDEntryTypes noMDEntryType2 = new MarketDataRequest.NoMDEntryTypes();
         noMDEntryType2.set(new MDEntryType('1'));
         marketDataRequest.addGroup(noMDEntryType2);
-        System.out.println("####New Marked Data Request Sent: " + marketDataRequest.toString());
-        Session.sendToTarget(marketDataRequest, sessionId);
+        return marketDataRequest;
     }
 }
