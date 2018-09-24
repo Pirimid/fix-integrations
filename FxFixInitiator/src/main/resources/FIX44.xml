@@ -3654,6 +3654,8 @@
   <components>
     <component name="Instrument">
       <field name="Symbol" required="Y"/>
+      <field name="SettlType" required="N"/>
+      <field name="SettlDate" required="N"/>
       <field name="SymbolSfx" required="N"/>
       <field name="SecurityID" required="N"/>
       <field name="SecurityIDSource" required="N"/>
