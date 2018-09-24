@@ -31,13 +31,13 @@
             <scope>system</scope>
             <systemPath>${basedir}/lib/quickfixj-all-1.5.3.jar</systemPath>
         </dependency>
-        <dependency>
-            <groupId>quickfixj-msg-fix42-1.5.3</groupId>
-            <artifactId>quickfixj-msg-fix42-1.5.3</artifactId>
-            <version>1.5.3</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/quickfixj-msg-fix42-1.5.3.jar</systemPath>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>quickfixj-msg-fix42-1.5.3</groupId>-->
+            <!--<artifactId>quickfixj-msg-fix42-1.5.3</artifactId>-->
+            <!--<version>1.5.3</version>-->
+            <!--<scope>system</scope>-->
+            <!--<systemPath>${basedir}/lib/quickfixj-msg-fix42-1.5.3.jar</systemPath>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>quickfixj-core-1.5.3</groupId>
             <artifactId>quickfixj-core-1.5.3</artifactId>
@@ -60,25 +60,35 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.6.3</version>
+            <version>1.7.25</version>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <version>1.6.3</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-jdk14</artifactId>
-            <version>1.6.3</version>
-            <scope>test</scope>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.2.3</version>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.6.3</version>
-            <scope>test</scope>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.slf4j</groupId>-->
+            <!--<artifactId>slf4j-simple</artifactId>-->
+            <!--<version>1.6.3</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.slf4j</groupId>-->
+            <!--<artifactId>slf4j-jdk14</artifactId>-->
+            <!--<version>1.6.3</version>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.slf4j</groupId>-->
+            <!--<artifactId>slf4j-log4j12</artifactId>-->
+            <!--<version>1.6.3</version>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
