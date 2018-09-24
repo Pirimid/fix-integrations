@@ -14,7 +14,7 @@ public class StartInitiator {
     private static CountDownLatch shutdownLatch = new CountDownLatch(1);
     private static final Logger logger = LoggerFactory.getLogger(StartInitiator.class);
 
-    public static void main(String args[]) throws FieldNotFound, InterruptedException {
+    public static void main(String args[]) {
         SocketInitiator socketInitiator = null;
         try {
             SessionSettings initiatorSettings = new SessionSettings(
@@ -40,19 +40,18 @@ public class StartInitiator {
             try {
                 Session.sendToTarget(logon, sessionId);
             } catch (SessionNotFound sessionNotFound) {
-                sessionNotFound.printStackTrace();
+                logger.error("Session not found for session id: {} : {}", sessionId.toString(), sessionNotFound);
             }
 
             try {
                 Thread.sleep(10000);
                 sendMarketDataSpotRequest(sessionId);
                 sendMarketDataFwdRequest(sessionId);
+                sendMarketDataNDFRequest(sessionId);
 //                sendNewOrderSingle(sessionId);
                 shutdownLatch.await();
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            } catch (SessionNotFound sessionNotFound) {
-                sessionNotFound.printStackTrace();
             }
 
         } catch (ConfigError configError) {
@@ -60,6 +59,7 @@ public class StartInitiator {
         }
 
     }
+
 
 //    private static void sendNewOrderSingle(SessionID sessionId) throws SessionNotFound {
 //        NewOrderSingle newOrderSingle = new NewOrderSingle(
@@ -73,17 +73,16 @@ public class StartInitiator {
 //        System.out.println("####New Order Sent :" + newOrderSingle.toString());
 //        Session.sendToTarget(newOrderSingle, sessionId);
 //    }
-
-    private static void sendMarketDataSpotRequest(SessionID sessionId) throws SessionNotFound {
+    private static void sendMarketDataSpotRequest(SessionID sessionId) {
         MarketDataRequest marketDataRequest = generateNewMarketDataRequest("11");
         MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
         noRelatedSym.set(new Symbol("EUR/USD"));
         marketDataRequest.addGroup(noRelatedSym);
         logger.info("####New Marked Data Spot Request Sent: " + marketDataRequest.toString());
-        Session.sendToTarget(marketDataRequest, sessionId);
+        sendMessageToTarget(sessionId, marketDataRequest);
     }
 
-    private static void sendMarketDataFwdRequest(SessionID sessionId) throws SessionNotFound {
+    private static void sendMarketDataFwdRequest(SessionID sessionId) {
         MarketDataRequest marketDataRequest = generateNewMarketDataRequest("12");
         MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
         noRelatedSym.set(new Symbol("EUR/USD"));
@@ -91,7 +90,20 @@ public class StartInitiator {
         noRelatedSym.setField(new SettlDate("20181001"));
         marketDataRequest.addGroup(noRelatedSym);
         logger.info("####New Marked Data Fwd Request Sent: " + marketDataRequest.toString());
-        Session.sendToTarget(marketDataRequest, sessionId);
+        sendMessageToTarget(sessionId, marketDataRequest);
+    }
+
+    private static void sendMarketDataNDFRequest(SessionID sessionId) {
+        MarketDataRequest marketDataRequest = generateNewMarketDataRequest("13");
+        MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
+        noRelatedSym.set(new Symbol("EUR/USD"));
+        noRelatedSym.set(new MaturityDate("20181001"));
+        noRelatedSym.setField(new SettlType("6"));
+        noRelatedSym.setField(new SettlDate("20181002"));
+        noRelatedSym.setField(new CharField(9002, '1'));
+        marketDataRequest.addGroup(noRelatedSym);
+        logger.info("####New Marked Data NDF Request Sent: " + marketDataRequest.toString());
+        sendMessageToTarget(sessionId, marketDataRequest);
     }
 
     private static MarketDataRequest generateNewMarketDataRequest(String mdReqId) {
@@ -110,5 +122,13 @@ public class StartInitiator {
         noMDEntryType2.set(new MDEntryType('1'));
         marketDataRequest.addGroup(noMDEntryType2);
         return marketDataRequest;
+    }
+
+    private static void sendMessageToTarget(SessionID sessionId, quickfix.fix44.Message message) {
+        try {
+            Session.sendToTarget(message, sessionId);
+        } catch (SessionNotFound sessionNotFound) {
+            logger.error("Session not found for session id: {} : {}", sessionId.toString(), sessionNotFound);
+        }
     }
 }
