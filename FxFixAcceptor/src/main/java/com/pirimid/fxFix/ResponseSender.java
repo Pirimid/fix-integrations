@@ -19,7 +19,7 @@ public class ResponseSender {
 
     private static final Logger logger = LoggerFactory.getLogger(ResponseSender.class);
 
-    public void startSendingMarketDataFullRefresh(MarketDataRequest order, SessionID sessionID) {
+    public void startSendingMarketDataRefreshResponse(MarketDataRequest order, SessionID sessionID) {
 
         Thread thread = new Thread(new Runnable() {
             @Override

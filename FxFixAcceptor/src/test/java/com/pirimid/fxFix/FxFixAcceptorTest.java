@@ -41,7 +41,7 @@ public class FxFixAcceptorTest extends TestCase {
             unsupportedMessageType.printStackTrace();
         }
 
-        verify(responseSender, times(1)).startSendingMarketDataFullRefresh(marketDataSpotRequest, sessionID);
+        verify(responseSender, times(1)).startSendingMarketDataRefreshResponse(marketDataSpotRequest, sessionID);
 
     }
 

@@ -67,7 +67,7 @@ public class FxFixAcceptor extends MessageCracker implements Application {
         logger.info("###Subscriptoin Request Type: " + order.getSubscriptionRequestType().toString());
         logger.info("###Market Depth: " + order.getMarketDepth().toString());
 
-        responseSender.startSendingMarketDataFullRefresh(order, sessionID);
+        responseSender.startSendingMarketDataRefreshResponse(order, sessionID);
     }
 
     public void sendMessageToClient(NewOrderSingle order, SessionID sessionID) {
