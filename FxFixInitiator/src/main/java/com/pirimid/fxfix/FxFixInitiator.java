@@ -4,7 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickfix.*;
 import quickfix.field.MDEntryPx;
+import quickfix.field.NoMDEntries;
 import quickfix.fix44.ExecutionReport;
+import quickfix.fix44.MarketDataIncrementalRefresh;
 import quickfix.fix44.MarketDataSnapshotFullRefresh;
 
 public class FxFixInitiator extends MessageCracker implements Application {
@@ -51,7 +53,14 @@ public class FxFixInitiator extends MessageCracker implements Application {
         String MDReqId = response.getMDReqID().toString();
         MDEntryPx mdEntryPx = new MDEntryPx();
         Double value = response.getField(mdEntryPx).getValue();
-        logger.info("MDReqId: " + MDReqId + " | Value: " + value);
+        logger.info("MarketDataFullRefresh for MDReqId: " + MDReqId + " | Value: " + value);
+    }
+
+    public void onMessage(MarketDataIncrementalRefresh response, SessionID sessionId) throws FieldNotFound {
+        String MDReqId = response.getMDReqID().toString();
+        MDEntryPx mdEntryPx = new MDEntryPx();
+        Double value = response.getGroup(1, NoMDEntries.FIELD).getField(mdEntryPx).getValue();
+        logger.info("MarketDataIncrementalRefresh for MDReqId: " + MDReqId + " | Value: " + value);
     }
 
     public void onMessage(ExecutionReport response, SessionID sessionId) throws FieldNotFound {

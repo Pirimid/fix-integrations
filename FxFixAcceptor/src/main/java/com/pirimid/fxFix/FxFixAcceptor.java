@@ -5,10 +5,7 @@ import org.slf4j.LoggerFactory;
 import quickfix.*;
 import quickfix.field.*;
 import quickfix.fix44.MarketDataRequest;
-import quickfix.fix44.MarketDataSnapshotFullRefresh;
 import quickfix.fix44.NewOrderSingle;
-
-import java.util.List;
 
 /**
  * A Fix Acceptor implementation for FX.
@@ -90,42 +87,6 @@ public class FxFixAcceptor extends MessageCracker implements Application {
             fieldNotFound.printStackTrace();
         } catch (SessionNotFound sessionNotFound) {
             sessionNotFound.printStackTrace();
-        }
-    }
-
-    public void sendMarketDataFullRefreshToClient(MarketDataRequest order, SessionID sessionID, Double price) {
-        List<Group> groups = order.getGroups(NoRelatedSym.FIELD);
-
-        for (Group group : groups) {
-            try {
-                Symbol symbol = new Symbol(group.getString(Symbol.FIELD));
-                List<Group> mdEntries = order.getGroups(NoMDEntryTypes.FIELD);
-                MarketDataSnapshotFullRefresh marketDataSnapshotFullRefresh = new MarketDataSnapshotFullRefresh();
-                marketDataSnapshotFullRefresh.set(symbol);
-                marketDataSnapshotFullRefresh.set(order.getMDReqID());
-                marketDataSnapshotFullRefresh.set(new NoMDEntries(mdEntries.size()));
-                marketDataSnapshotFullRefresh.setField(order.getMarketDepth());
-                for (int i = 0; i < mdEntries.size(); i++) {
-                    MarketDataSnapshotFullRefresh.NoMDEntries mdEntryGroup = new MarketDataSnapshotFullRefresh.NoMDEntries();
-                    mdEntryGroup.set(new MDEntryType('0'));
-                    mdEntryGroup.setField(new MDEntryID("MDEntryId" + i));
-                    mdEntryGroup.set(new MDEntryPx(price));
-                    mdEntryGroup.set(new MDEntrySize(10000000));
-                    mdEntryGroup.set(new QuoteEntryID("QuoteEntryId" + i));
-                    mdEntryGroup.set(new MDEntryPositionNo(4));
-                    mdEntryGroup.setField(new MDQuoteType(1));
-                    mdEntryGroup.set(new MDEntryType('1'));
-                    marketDataSnapshotFullRefresh.addGroup(mdEntryGroup);
-                }
-                SettlDate settlDate = new SettlDate("20171117");
-                marketDataSnapshotFullRefresh.setField(settlDate);
-
-                Session.sendToTarget(marketDataSnapshotFullRefresh, sessionID);
-            } catch (FieldNotFound fieldNotFound) {
-                fieldNotFound.printStackTrace();
-            } catch (SessionNotFound sessionNotFound) {
-                sessionNotFound.printStackTrace();
-            }
         }
     }
 

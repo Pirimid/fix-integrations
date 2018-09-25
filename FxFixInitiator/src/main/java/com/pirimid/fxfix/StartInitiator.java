@@ -112,7 +112,7 @@ public class StartInitiator {
                 new SubscriptionRequestType('1'),
                 new MarketDepth(0)
         );
-        marketDataRequest.set(new MDUpdateType(0));
+        marketDataRequest.set(new MDUpdateType(1));
         marketDataRequest.set(new NoMDEntryTypes(2));
         marketDataRequest.set(new NoRelatedSym(1));
         MarketDataRequest.NoMDEntryTypes noMDEntryType1 = new MarketDataRequest.NoMDEntryTypes();
