@@ -47,7 +47,7 @@ public class FxFixAcceptor extends MessageCracker implements Application {
 
     @Override
     public void fromApp(Message message, SessionID sessionID) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
-        logger.info("Message recieved from App: " + message.toString() + " for session: " + sessionID.toString());
+        logger.info("Message received from App: " + message.toString() + " for session: " + sessionID.toString());
         crack(message, sessionID);
     }
 
@@ -84,9 +84,9 @@ public class FxFixAcceptor extends MessageCracker implements Application {
         } catch (RuntimeException e) {
             LogUtil.logThrowable(sessionID, e.getMessage(), e);
         } catch (FieldNotFound fieldNotFound) {
-            fieldNotFound.printStackTrace();
+            logger.error("Field {} not found", fieldNotFound.field, fieldNotFound);
         } catch (SessionNotFound sessionNotFound) {
-            sessionNotFound.printStackTrace();
+            logger.error("Session not found for session id: {}", sessionID.toString(), sessionNotFound);
         }
     }
 

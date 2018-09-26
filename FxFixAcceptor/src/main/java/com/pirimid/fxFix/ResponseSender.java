@@ -50,6 +50,56 @@ public class ResponseSender {
         thread.start();
     }
 
+    protected void sendMarketDataFullRefreshToClient(MarketDataRequest order, SessionID sessionID, Double price) {
+        List<Group> groups = order.getGroups(NoRelatedSym.FIELD);
+
+        for (Group group : groups) {
+            try {
+                Symbol symbol = new Symbol(group.getString(Symbol.FIELD));
+                List<Group> mdEntries = order.getGroups(NoMDEntryTypes.FIELD);
+                MarketDataSnapshotFullRefresh marketDataSnapshotFullRefresh = new MarketDataSnapshotFullRefresh();
+                marketDataSnapshotFullRefresh.set(symbol);
+                marketDataSnapshotFullRefresh.set(order.getMDReqID());
+                marketDataSnapshotFullRefresh.set(new NoMDEntries(mdEntries.size()));
+                marketDataSnapshotFullRefresh.setField(order.getMarketDepth());
+                String settlTypeValue = "0";
+                if(isSetField(group, SettlType.FIELD)) {
+                    settlTypeValue = group.getField(new SettlType()).getValue();
+                    marketDataSnapshotFullRefresh.setField(group.getField(new SettlType()));
+                }
+                String settlDateValue = "20180925";
+                if(isSetField(group, SettlDate.FIELD)) {
+                    settlDateValue = group.getField(new SettlDate()).getValue();
+                }
+                marketDataSnapshotFullRefresh.setField(new SettlDate(settlDateValue));
+                if(isSetField(group, MaturityDate.FIELD)) {
+                    marketDataSnapshotFullRefresh.setField(group.getField(new MaturityDate()));
+                }
+                if(isSetField(group, NDF)) {
+                    marketDataSnapshotFullRefresh.setField(group.getField(new CharField(NDF)));
+                }
+                for (int i = 0; i < mdEntries.size(); i++) {
+                    MarketDataSnapshotFullRefresh.NoMDEntries mdEntryGroup = new MarketDataSnapshotFullRefresh.NoMDEntries();
+                    mdEntryGroup.set(new MDEntryType('0'));
+                    mdEntryGroup.setField(new MDEntryID("MDEntryId" + i));
+                    mdEntryGroup.set(new MDEntryPx(price));
+                    mdEntryGroup.set(new MDEntrySize(10000000));
+                    mdEntryGroup.set(new QuoteEntryID("QuoteEntryId" + i));
+                    mdEntryGroup.set(new MDEntryPositionNo(4));
+                    mdEntryGroup.setField(new MDQuoteType(1));
+                    mdEntryGroup.set(new MDEntryType('1'));
+                    marketDataSnapshotFullRefresh.addGroup(mdEntryGroup);
+                }
+                SettlDate settlDate = new SettlDate("20171117");
+                marketDataSnapshotFullRefresh.setField(settlDate);
+
+                sendMessageToTarget(sessionID, marketDataSnapshotFullRefresh);
+            } catch (FieldNotFound fieldNotFound) {
+                logger.error("Field {} not found", fieldNotFound.field, fieldNotFound);
+            }
+        }
+    }
+
     protected void sendMarketDataIncrementalRefreshToClient(MarketDataRequest order, SessionID sessionID, Double price) {
         List<Group> groups = order.getGroups(NoRelatedSym.FIELD);
 
@@ -78,8 +128,6 @@ public class ResponseSender {
                 if(isSetField(group, NDF)) {
                     marketDataIncrementalRefresh.setField(group.getField(new CharField(NDF)));
                 }
-                SettlDate settlDate = new SettlDate("20171117");
-                marketDataIncrementalRefresh.setField(settlDate);
                 for (int i = 0; i < mdEntries.size(); i++) {
                     MarketDataSnapshotFullRefresh.NoMDEntries mdEntryGroup = new MarketDataSnapshotFullRefresh.NoMDEntries();
                     Group entryGroup = mdEntries.get(i);
@@ -110,40 +158,6 @@ public class ResponseSender {
                 }
 
                 sendMessageToTarget(sessionID, marketDataIncrementalRefresh);
-            } catch (FieldNotFound fieldNotFound) {
-                logger.error("Field {} not found", fieldNotFound.field, fieldNotFound);
-            }
-        }
-    }
-
-    protected void sendMarketDataFullRefreshToClient(MarketDataRequest order, SessionID sessionID, Double price) {
-        List<Group> groups = order.getGroups(NoRelatedSym.FIELD);
-
-        for (Group group : groups) {
-            try {
-                Symbol symbol = new Symbol(group.getString(Symbol.FIELD));
-                List<Group> mdEntries = order.getGroups(NoMDEntryTypes.FIELD);
-                MarketDataSnapshotFullRefresh marketDataSnapshotFullRefresh = new MarketDataSnapshotFullRefresh();
-                marketDataSnapshotFullRefresh.set(symbol);
-                marketDataSnapshotFullRefresh.set(order.getMDReqID());
-                marketDataSnapshotFullRefresh.set(new NoMDEntries(mdEntries.size()));
-                marketDataSnapshotFullRefresh.setField(order.getMarketDepth());
-                for (int i = 0; i < mdEntries.size(); i++) {
-                    MarketDataSnapshotFullRefresh.NoMDEntries mdEntryGroup = new MarketDataSnapshotFullRefresh.NoMDEntries();
-                    mdEntryGroup.set(new MDEntryType('0'));
-                    mdEntryGroup.setField(new MDEntryID("MDEntryId" + i));
-                    mdEntryGroup.set(new MDEntryPx(price));
-                    mdEntryGroup.set(new MDEntrySize(10000000));
-                    mdEntryGroup.set(new QuoteEntryID("QuoteEntryId" + i));
-                    mdEntryGroup.set(new MDEntryPositionNo(4));
-                    mdEntryGroup.setField(new MDQuoteType(1));
-                    mdEntryGroup.set(new MDEntryType('1'));
-                    marketDataSnapshotFullRefresh.addGroup(mdEntryGroup);
-                }
-                SettlDate settlDate = new SettlDate("20171117");
-                marketDataSnapshotFullRefresh.setField(settlDate);
-
-                sendMessageToTarget(sessionID, marketDataSnapshotFullRefresh);
             } catch (FieldNotFound fieldNotFound) {
                 logger.error("Field {} not found", fieldNotFound.field, fieldNotFound);
             }

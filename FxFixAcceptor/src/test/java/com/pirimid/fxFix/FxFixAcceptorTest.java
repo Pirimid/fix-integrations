@@ -27,7 +27,7 @@ public class FxFixAcceptorTest extends TestCase {
 
     @Test
     public void testMarketDataSpotRequest() {
-        MarketDataRequest marketDataSpotRequest = RequestGenerator.generateDummyMarketDataSpotRequest();
+        MarketDataRequest marketDataSpotRequest = RequestGenerator.generateMarketDataRequest_Spot_FullRefresh();
 
         try {
             application.fromApp(marketDataSpotRequest, sessionID);
