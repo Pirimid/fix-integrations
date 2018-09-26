@@ -1,6 +1,6 @@
 package com.pirimid.uitility;
 
-import com.pirimid.utility.FieldConstants;
+import com.pirimid.utils.FieldConstants;
 import quickfix.CharField;
 import quickfix.field.*;
 import quickfix.fix44.MarketDataRequest;

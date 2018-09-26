@@ -1,5 +1,6 @@
 package com.pirimid.fxfix;
 
+import com.pirimid.utils.RequestGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickfix.*;
@@ -8,6 +9,7 @@ import quickfix.field.NoMDEntries;
 import quickfix.fix44.ExecutionReport;
 import quickfix.fix44.MarketDataIncrementalRefresh;
 import quickfix.fix44.MarketDataSnapshotFullRefresh;
+import quickfix.fix44.NewOrderSingle;
 
 public class FxFixInitiator extends MessageCracker implements Application {
 
@@ -49,18 +51,36 @@ public class FxFixInitiator extends MessageCracker implements Application {
         crack(message, sessionID);
     }
 
-    public void onMessage(MarketDataSnapshotFullRefresh response, SessionID sessionId) throws FieldNotFound {
-        String MDReqId = response.getMDReqID().toString();
+    public void onMessage(MarketDataSnapshotFullRefresh message, SessionID sessionId) throws FieldNotFound {
+        String MDReqId = message.getMDReqID().toString();
         MDEntryPx mdEntryPx = new MDEntryPx();
-        Double value = response.getField(mdEntryPx).getValue();
+        Double value = message.getField(mdEntryPx).getValue();
         logger.info("MarketDataSnapshotFullRefresh for MDReqId: " + MDReqId + " | Value: " + value);
+        if(value > 1.8) {
+            NewOrderSingle newOrderSingle = RequestGenerator.generateNewOrderSingle(message);
+            logger.info("New Order Single Sent: " + newOrderSingle.toString());
+            try {
+                Session.sendToTarget(newOrderSingle, sessionId);
+            } catch (SessionNotFound sessionNotFound) {
+                logger.error("Session not found for session id: {}", sessionId.toString(), sessionNotFound);
+            }
+        }
     }
 
-    public void onMessage(MarketDataIncrementalRefresh response, SessionID sessionId) throws FieldNotFound {
-        String MDReqId = response.getMDReqID().toString();
+    public void onMessage(MarketDataIncrementalRefresh message, SessionID sessionId) throws FieldNotFound {
+        String MDReqId = message.getMDReqID().toString();
         MDEntryPx mdEntryPx = new MDEntryPx();
-        Double value = response.getGroup(1, NoMDEntries.FIELD).getField(mdEntryPx).getValue();
+        Double value = message.getGroup(1, NoMDEntries.FIELD).getField(mdEntryPx).getValue();
         logger.info("MarketDataIncrementalRefresh for MDReqId: " + MDReqId + " | Value: " + value);
+        if(value > 1.8) {
+            NewOrderSingle newOrderSingle = RequestGenerator.generateNewOrderSingle(message);
+            logger.info("New Order Single Sent: " + newOrderSingle.toString());
+            try {
+                Session.sendToTarget(newOrderSingle, sessionId);
+            } catch (SessionNotFound sessionNotFound) {
+                logger.error("Session not found for session id: {}", sessionId.toString(), sessionNotFound);
+            }
+        }
     }
 
     public void onMessage(ExecutionReport response, SessionID sessionId) throws FieldNotFound {

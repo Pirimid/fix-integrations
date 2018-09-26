@@ -26,7 +26,7 @@ public class FxFixAcceptorTest extends TestCase {
     private SessionID sessionID = new SessionID(FixVersions.BEGINSTRING_FIX42, TEST_SENDER_COMP_ID, TEST_TARGET_COMP_ID);
 
     @Test
-    public void testMarketDataSpotRequest() {
+    public void testMarketDataRequest() {
         MarketDataRequest marketDataSpotRequest = RequestGenerator.generateMarketDataRequest_Spot_FullRefresh();
 
         try {

@@ -1,6 +1,6 @@
 package com.pirimid.fxFix;
 
-import com.pirimid.utility.Helper;
+import com.pirimid.utils.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickfix.*;
@@ -12,7 +12,7 @@ import quickfix.fix44.Message;
 
 import java.util.List;
 
-import static com.pirimid.utility.FieldConstants.NDF;
+import static com.pirimid.utils.FieldConstants.NDF;
 
 public class ResponseSender {
 
@@ -29,7 +29,7 @@ public class ResponseSender {
                 try {
                     mdUpdateTypeValue = order.get(mdUpdateType).getValue();
                 } catch (FieldNotFound fieldNotFound) {
-                    logger.error("Filed {} not found in order {}", mdUpdateType.getField(), order.toString());
+                    logger.error("Field {} not found in order {}", mdUpdateType.getField(), order.toString());
                 }
                 while (Session.lookupSession(sessionID).hasResponder()) {
                     if (isIncrementalRefreshRequested(mdUpdateTypeValue)) {

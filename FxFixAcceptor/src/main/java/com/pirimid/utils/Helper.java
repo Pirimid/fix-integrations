@@ -1,4 +1,4 @@
-package com.pirimid.utility;
+package com.pirimid.utils;
 
 import java.text.DecimalFormat;
 import java.util.Random;

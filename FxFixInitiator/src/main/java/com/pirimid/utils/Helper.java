@@ -1,4 +1,4 @@
-package com.pirimid.utility;
+package com.pirimid.utils;
 
 import java.util.concurrent.ThreadLocalRandom;
 

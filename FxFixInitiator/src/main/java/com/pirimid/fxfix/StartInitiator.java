@@ -1,6 +1,6 @@
 package com.pirimid.fxfix;
 
-import com.pirimid.utility.RequestGenerator;
+import com.pirimid.utils.RequestGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickfix.*;
@@ -46,13 +46,14 @@ public class StartInitiator {
 
             try {
                 Thread.sleep(10000);
+
                 sendMarketDataSpotRequest_FullRefresh(sessionId);
                 sendMarketDataFwdRequest_FullRefresh(sessionId);
                 sendMarketDataNDFRequest_FullRefresh(sessionId);
                 sendMarketDataSpotRequest_IncrementalRefresh(sessionId);
                 sendMarketDataFwdRequest_IncrementalRefresh(sessionId);
                 sendMarketDataNDFRequest_IncrementalRefresh(sessionId);
-//                sendNewOrderSingle(sessionId);
+
                 shutdownLatch.await();
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -64,52 +65,39 @@ public class StartInitiator {
 
     }
 
-//    private static void sendNewOrderSingle(SessionID sessionId) throws SessionNotFound {
-//        NewOrderSingle newOrderSingle = new NewOrderSingle(
-//                new ClOrdID("456"),
-//                new HandlInst('3'),
-//                new Symbol("AJCB"),
-//                new Side(Side.BUY),
-//                new TransactTime(),
-//                new OrdType(OrdType.MARKET)
-//        );
-//        System.out.println("####New Order Sent :" + newOrderSingle.toString());
-//        Session.sendToTarget(newOrderSingle, sessionId);
-//    }
-
     private static void sendMarketDataSpotRequest_FullRefresh(SessionID sessionId) {
         MarketDataRequest marketDataRequest = RequestGenerator.generateMarketDataRequest_Spot_FullRefresh();
-        logger.info("####New Marked Data Spot Full Refresh Request Sent: " + marketDataRequest.toString());
+        logger.info("New Marked Data Spot Full Refresh Request Sent: " + marketDataRequest.toString());
         sendMessageToTarget(sessionId, marketDataRequest);
     }
 
     private static void sendMarketDataFwdRequest_FullRefresh(SessionID sessionId) {
         MarketDataRequest marketDataRequest = RequestGenerator.generateMarketDataRequest_Fwd_FullRefresh();
-        logger.info("####New Marked Data Fwd Full Refresh Request Sent: " + marketDataRequest.toString());
+        logger.info("New Marked Data Fwd Full Refresh Request Sent: " + marketDataRequest.toString());
         sendMessageToTarget(sessionId, marketDataRequest);
     }
 
     private static void sendMarketDataNDFRequest_FullRefresh(SessionID sessionId) {
         MarketDataRequest marketDataRequest = RequestGenerator.generateMarketDataRequest_NDF_FullRefresh();
-        logger.info("####New Marked Data NDF Full Refresh Request Sent: " + marketDataRequest.toString());
+        logger.info("New Marked Data NDF Full Refresh Request Sent: " + marketDataRequest.toString());
         sendMessageToTarget(sessionId, marketDataRequest);
     }
 
     private static void sendMarketDataSpotRequest_IncrementalRefresh(SessionID sessionId) {
         MarketDataRequest marketDataRequest = RequestGenerator.generateMarketDataRequest_Spot_IncrementalRefresh();
-        logger.info("####New Marked Data Spot Incremental Refresh Request Sent: " + marketDataRequest.toString());
+        logger.info("New Marked Data Spot Incremental Refresh Request Sent: " + marketDataRequest.toString());
         sendMessageToTarget(sessionId, marketDataRequest);
     }
 
     private static void sendMarketDataFwdRequest_IncrementalRefresh(SessionID sessionId) {
         MarketDataRequest marketDataRequest = RequestGenerator.generateMarketDataRequest_Fwd_IncrementalRefresh();
-        logger.info("####New Marked Data Fwd Incremental Refresh Request Sent: " + marketDataRequest.toString());
+        logger.info("New Marked Data Fwd Incremental Refresh Request Sent: " + marketDataRequest.toString());
         sendMessageToTarget(sessionId, marketDataRequest);
     }
 
     private static void sendMarketDataNDFRequest_IncrementalRefresh(SessionID sessionId) {
         MarketDataRequest marketDataRequest = RequestGenerator.generateMarketDataRequest_NDF_IncrementalRefresh();
-        logger.info("####New Marked Data NDF Incremental Refresh Request Sent: " + marketDataRequest.toString());
+        logger.info("New Marked Data NDF Incremental Refresh Request Sent: " + marketDataRequest.toString());
         sendMessageToTarget(sessionId, marketDataRequest);
     }
 

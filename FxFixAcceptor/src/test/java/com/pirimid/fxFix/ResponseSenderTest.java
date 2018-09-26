@@ -1,7 +1,7 @@
 package com.pirimid.fxFix;
 
 import com.pirimid.uitility.RequestGenerator;
-import com.pirimid.utility.FieldConstants;
+import com.pirimid.utils.FieldConstants;
 import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
