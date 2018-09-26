@@ -4,13 +4,22 @@ FIX client/server sample app for FX market data and trading using quickFix engin
 ## Types of Requests that are supported by this Sample Application
 
 ### Initiator
- 1. Market Data Request
-    1. Spot
-    2. FWD
-    3. NDF
+ 1. Market Data Spot Request
+    1. Full Refresh
+    2. Incremental Refresh
+2. Market Data Forward Request
+    1. Full Refresh
+    2. Incremental Refresh
+3. Market Data NDF Request
+    1. Full Refresh
+    2. Incremental Refresh
+
 ### Acceptor
  1. Market Data Full Refresh
-    1. Spot : It will continuously send the Market Data Full Refresh reaponse back to initiator until the initiator is available.
-    2. FWD
+    1. Spot
+    2. Forward
     3. NDF
  2. Market Data Incremental Refresh
+    1. Spot
+    2. Forward
+    3. NDF
