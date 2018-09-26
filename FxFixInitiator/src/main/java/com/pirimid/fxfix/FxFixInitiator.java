@@ -10,7 +10,7 @@ import quickfix.fix44.MarketDataIncrementalRefresh;
 import quickfix.fix44.MarketDataSnapshotFullRefresh;
 
 public class FxFixInitiator extends MessageCracker implements Application {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(FxFixInitiator.class);
 
     @Override
@@ -53,7 +53,7 @@ public class FxFixInitiator extends MessageCracker implements Application {
         String MDReqId = response.getMDReqID().toString();
         MDEntryPx mdEntryPx = new MDEntryPx();
         Double value = response.getField(mdEntryPx).getValue();
-        logger.info("MarketDataFullRefresh for MDReqId: " + MDReqId + " | Value: " + value);
+        logger.info("MarketDataSnapshotFullRefresh for MDReqId: " + MDReqId + " | Value: " + value);
     }
 
     public void onMessage(MarketDataIncrementalRefresh response, SessionID sessionId) throws FieldNotFound {
