@@ -57,7 +57,7 @@ public class ResponseSenderTest extends TestCase {
         MarketDataRequest marketDataRequest = RequestGenerator.generateMarketDataRequest_Spot_FullRefresh();
         PowerMockito.spy(Session.class);
 
-        responseSender.sendMarketDataFullRefreshToClient(marketDataRequest, sessionID, SAMPLE_PRICE);
+        responseSender.sendMarketDataFullRefreshToClient(marketDataRequest, sessionID);
 
         //Assert
         ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
@@ -80,7 +80,7 @@ public class ResponseSenderTest extends TestCase {
         MarketDataRequest marketDataRequest = RequestGenerator.generateMarketDataRequest_Fwd_FullRefresh();
         PowerMockito.spy(Session.class);
 
-        responseSender.sendMarketDataFullRefreshToClient(marketDataRequest, sessionID, SAMPLE_PRICE);
+        responseSender.sendMarketDataFullRefreshToClient(marketDataRequest, sessionID);
 
         //Assert
         ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
@@ -103,7 +103,7 @@ public class ResponseSenderTest extends TestCase {
         MarketDataRequest marketDataRequest = RequestGenerator.generateMarketDataRequest_NDF_FullRefresh();
         PowerMockito.spy(Session.class);
 
-        responseSender.sendMarketDataFullRefreshToClient(marketDataRequest, sessionID, SAMPLE_PRICE);
+        responseSender.sendMarketDataFullRefreshToClient(marketDataRequest, sessionID);
 
         //Assert
         ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
@@ -126,7 +126,7 @@ public class ResponseSenderTest extends TestCase {
         MarketDataRequest marketDataRequest = RequestGenerator.generateMarketDataRequest_Spot_IncrementalRefresh();
         PowerMockito.spy(Session.class);
 
-        responseSender.sendMarketDataIncrementalRefreshToClient(marketDataRequest, sessionID, SAMPLE_PRICE);
+        responseSender.sendMarketDataIncrementalRefreshToClient(marketDataRequest, sessionID);
 
         //Assert
         ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
@@ -149,7 +149,7 @@ public class ResponseSenderTest extends TestCase {
         MarketDataRequest marketDataRequest = RequestGenerator.generateMarketDataRequest_Fwd_IncrementalRefresh();
         PowerMockito.spy(Session.class);
 
-        responseSender.sendMarketDataIncrementalRefreshToClient(marketDataRequest, sessionID, SAMPLE_PRICE);
+        responseSender.sendMarketDataIncrementalRefreshToClient(marketDataRequest, sessionID);
 
         //Assert
         ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
@@ -172,7 +172,7 @@ public class ResponseSenderTest extends TestCase {
         MarketDataRequest marketDataRequest = RequestGenerator.generateMarketDataRequest_NDF_IncrementalRefresh();
         PowerMockito.spy(Session.class);
 
-        responseSender.sendMarketDataIncrementalRefreshToClient(marketDataRequest, sessionID, SAMPLE_PRICE);
+        responseSender.sendMarketDataIncrementalRefreshToClient(marketDataRequest, sessionID);
 
         //Assert
         ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
