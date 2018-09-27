@@ -1,6 +1,6 @@
 package com.pirimid.fxFix;
 
-import com.pirimid.uitility.RequestGenerator;
+import com.pirimid.utils.RequestGenerator;
 import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,7 +44,6 @@ public class FxFixAcceptorTest extends TestCase {
 
         verify(responseSender, times(1)).subscribeNewMarketDataRequest(marketDataRequest);
         verify(responseSender, times(1)).startSendingMarketDataRefreshResponseIfNotStarted(sessionID);
-
     }
 
     @Test
@@ -70,6 +69,30 @@ public class FxFixAcceptorTest extends TestCase {
             fail("Field " + fieldNotFound.field + " must be available");
         }
         verify(responseSender, times(1)).sendExecutionReportToClient(newOrderSingle, sessionID);
+    }
+
+    @Test
+    public void testMarketDataRequest_Unsubscribe() {
+        MarketDataRequest marketDataRequestUnsubscribe = RequestGenerator.generateMarketDataRequest_Unsubscribe();
+
+        try {
+            application.fromApp(marketDataRequestUnsubscribe, sessionID);
+        } catch (FieldNotFound fieldNotFound) {
+            fieldNotFound.printStackTrace();
+        } catch (IncorrectDataFormat incorrectDataFormat) {
+            incorrectDataFormat.printStackTrace();
+        } catch (IncorrectTagValue incorrectTagValue) {
+            incorrectTagValue.printStackTrace();
+        } catch (UnsupportedMessageType unsupportedMessageType) {
+            unsupportedMessageType.printStackTrace();
+        }
+
+        try {
+            String reqId = marketDataRequestUnsubscribe.getMDReqID().getValue();
+            verify(responseSender, times(1)).unsubscribeMarketDataRequest(reqId);
+        } catch (FieldNotFound fieldNotFound) {
+            fail("Field " + fieldNotFound.field + " must be available");
+        }
     }
 
 }

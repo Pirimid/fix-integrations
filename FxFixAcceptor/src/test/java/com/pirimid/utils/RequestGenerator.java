@@ -1,8 +1,6 @@
-package com.pirimid.uitility;
+package com.pirimid.utils;
 
-import com.pirimid.utils.Constants;
 import quickfix.CharField;
-import quickfix.FieldNotFound;
 import quickfix.field.*;
 import quickfix.fix44.MarketDataRequest;
 import quickfix.fix44.NewOrderSingle;
@@ -16,7 +14,7 @@ public class RequestGenerator {
     public static final String SAMPLE_SETTL_DATE = "20181001";
 
     public static MarketDataRequest generateMarketDataRequest_Spot_FullRefresh() {
-        MarketDataRequest marketDataRequest = generateMarketDataRequest();
+        MarketDataRequest marketDataRequest = generateMarketDataSubscribeRequest();
         marketDataRequest.set(new MDUpdateType(MDUpdateType.FULL_REFRESH));
         MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
         noRelatedSym.set(new Symbol(Constants.EUR_USD));
@@ -26,7 +24,7 @@ public class RequestGenerator {
     }
 
     public static MarketDataRequest generateMarketDataRequest_Fwd_FullRefresh() {
-        MarketDataRequest marketDataRequest = generateMarketDataRequest();
+        MarketDataRequest marketDataRequest = generateMarketDataSubscribeRequest();
         marketDataRequest.set(new MDUpdateType(MDUpdateType.FULL_REFRESH));
         MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
         noRelatedSym.set(new Symbol(Constants.EUR_USD));
@@ -37,7 +35,7 @@ public class RequestGenerator {
     }
 
     public static MarketDataRequest generateMarketDataRequest_NDF_FullRefresh() {
-        MarketDataRequest marketDataRequest = generateMarketDataRequest();
+        MarketDataRequest marketDataRequest = generateMarketDataSubscribeRequest();
         marketDataRequest.set(new MDUpdateType(MDUpdateType.FULL_REFRESH));
         MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
         noRelatedSym.set(new Symbol(Constants.EUR_USD));
@@ -50,7 +48,7 @@ public class RequestGenerator {
     }
 
     public static MarketDataRequest generateMarketDataRequest_Spot_IncrementalRefresh() {
-        MarketDataRequest marketDataRequest = generateMarketDataRequest();
+        MarketDataRequest marketDataRequest = generateMarketDataSubscribeRequest();
         marketDataRequest.set(new MDUpdateType(MDUpdateType.INCREMENTAL_REFRESH));
         MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
         noRelatedSym.set(new Symbol(Constants.EUR_USD));
@@ -60,7 +58,7 @@ public class RequestGenerator {
     }
 
     public static MarketDataRequest generateMarketDataRequest_Fwd_IncrementalRefresh() {
-        MarketDataRequest marketDataRequest = generateMarketDataRequest();
+        MarketDataRequest marketDataRequest = generateMarketDataSubscribeRequest();
         marketDataRequest.set(new MDUpdateType(MDUpdateType.INCREMENTAL_REFRESH));
         MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
         noRelatedSym.set(new Symbol(Constants.EUR_USD));
@@ -71,7 +69,7 @@ public class RequestGenerator {
     }
 
     public static MarketDataRequest generateMarketDataRequest_NDF_IncrementalRefresh() {
-        MarketDataRequest marketDataRequest = generateMarketDataRequest();
+        MarketDataRequest marketDataRequest = generateMarketDataSubscribeRequest();
         marketDataRequest.set(new MDUpdateType(MDUpdateType.INCREMENTAL_REFRESH));
         MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
         noRelatedSym.set(new Symbol(Constants.EUR_USD));
@@ -83,12 +81,37 @@ public class RequestGenerator {
         return marketDataRequest;
     }
 
-    private static MarketDataRequest generateMarketDataRequest() {
+    private static MarketDataRequest generateMarketDataSubscribeRequest() {
         MarketDataRequest marketDataRequest = new MarketDataRequest(
                 new MDReqID("11"),
                 new SubscriptionRequestType(SubscriptionRequestType.SNAPSHOT_PLUS_UPDATES),
                 new MarketDepth(15)
         );
+        setDefaultFieldsOfMarketDataRequest(marketDataRequest);
+        return marketDataRequest;
+    }
+
+    public static MarketDataRequest generateMarketDataRequest_Unsubscribe() {
+        MarketDataRequest marketDataRequest = generateMarketDataUnsubscribeRequest();
+        marketDataRequest.set(new MDUpdateType(MDUpdateType.FULL_REFRESH));
+        MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
+        noRelatedSym.set(new Symbol(Constants.EUR_USD));
+        noRelatedSym.setField(new SettlType(SettlType.REGULAR));
+        marketDataRequest.addGroup(noRelatedSym);
+        return marketDataRequest;
+    }
+
+    private static MarketDataRequest generateMarketDataUnsubscribeRequest() {
+        MarketDataRequest marketDataRequest = new MarketDataRequest(
+                new MDReqID("11"),
+                new SubscriptionRequestType(SubscriptionRequestType.DISABLE_PREVIOUS_SNAPSHOT_PLUS_UPDATE_REQUEST),
+                new MarketDepth(15)
+        );
+        setDefaultFieldsOfMarketDataRequest(marketDataRequest);
+        return marketDataRequest;
+    }
+
+    private static void setDefaultFieldsOfMarketDataRequest(MarketDataRequest marketDataRequest) {
         marketDataRequest.set(new NoMDEntryTypes(2));
         marketDataRequest.set(new NoRelatedSym(1));
         MarketDataRequest.NoMDEntryTypes noMDEntryType1 = new MarketDataRequest.NoMDEntryTypes();
@@ -97,7 +120,6 @@ public class RequestGenerator {
         MarketDataRequest.NoMDEntryTypes noMDEntryType2 = new MarketDataRequest.NoMDEntryTypes();
         noMDEntryType2.set(new MDEntryType(MDEntryType.OFFER));
         marketDataRequest.addGroup(noMDEntryType2);
-        return marketDataRequest;
     }
 
     public static NewOrderSingle generateNewOrderSingle() {

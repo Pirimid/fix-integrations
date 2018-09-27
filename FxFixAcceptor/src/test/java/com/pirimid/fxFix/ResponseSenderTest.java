@@ -1,6 +1,6 @@
 package com.pirimid.fxFix;
 
-import com.pirimid.uitility.RequestGenerator;
+import com.pirimid.utils.RequestGenerator;
 import com.pirimid.utils.Constants;
 import junit.framework.TestCase;
 import org.junit.After;
@@ -72,7 +72,6 @@ public class ResponseSenderTest extends TestCase {
         assertSpotRequest(returnedMessage);
         assertMDRequestId(marketDataRequest, returnedMessage);
     }
-
     @Test
     public void testSendMarketDataFullRefresh_Fwd() throws Exception {
         MarketDataRequest marketDataRequest = RequestGenerator.generateMarketDataRequest_Fwd_FullRefresh();
@@ -275,7 +274,6 @@ public class ResponseSenderTest extends TestCase {
             fail("Field " + fieldNotFound.field + " must be available");
         }
         assertEquals("Market Data Request Id of MarketDataRequest and MarketDataRequest's Response must be same", MDRequestId, returnedMDRequestId);
-
     }
 
     private void assertClientOrderId(NewOrderSingle newOrderSingle, Message returnedMessage) {
@@ -288,7 +286,6 @@ public class ResponseSenderTest extends TestCase {
             fail("Field " + fieldNotFound.field + " must be available");
         }
         assertEquals("Client order id of NewOrderSingle request and ExecutionReport must be same", clientOrderId, executionReportOrderId);
-
     }
 
     @After
