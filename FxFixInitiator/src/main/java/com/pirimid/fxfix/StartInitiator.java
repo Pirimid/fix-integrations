@@ -33,13 +33,20 @@ public class StartInitiator {
 
     }
 
-    private static void sendMarketDataRequests(SessionID sessionId) {
-        sendMarketDataSpotRequest_FullRefresh(sessionId);
-        sendMarketDataFwdRequest_FullRefresh(sessionId);
-        sendMarketDataNDFRequest_FullRefresh(sessionId);
-        sendMarketDataSpotRequest_IncrementalRefresh(sessionId);
-        sendMarketDataFwdRequest_IncrementalRefresh(sessionId);
-        sendMarketDataNDFRequest_IncrementalRefresh(sessionId);
+    private static SessionID initializeSession() throws ConfigError {
+        SocketInitiator socketInitiator;
+        SessionSettings initiatorSettings = new SessionSettings(CONFIG_FILE_NAME);
+        Application initiatorApplication = new FxFixInitiator();
+        FileStoreFactory fileStoreFactory = new FileStoreFactory(
+                initiatorSettings);
+        FileLogFactory fileLogFactory = new FileLogFactory(
+                initiatorSettings);
+        MessageFactory messageFactory = new DefaultMessageFactory();
+        socketInitiator = new SocketInitiator(initiatorApplication, fileStoreFactory, initiatorSettings, fileLogFactory, messageFactory);
+        socketInitiator.start();
+        SessionID sessionId = (SessionID) socketInitiator.getSessions().get(0);
+        Session.lookupSession(sessionId).logon();
+        return sessionId;
     }
 
     private static void logonSession(SessionID sessionId) {
@@ -56,20 +63,13 @@ public class StartInitiator {
         }
     }
 
-    private static SessionID initializeSession() throws ConfigError {
-        SocketInitiator socketInitiator;
-        SessionSettings initiatorSettings = new SessionSettings(CONFIG_FILE_NAME);
-        Application initiatorApplication = new FxFixInitiator();
-        FileStoreFactory fileStoreFactory = new FileStoreFactory(
-                initiatorSettings);
-        FileLogFactory fileLogFactory = new FileLogFactory(
-                initiatorSettings);
-        MessageFactory messageFactory = new DefaultMessageFactory();
-        socketInitiator = new SocketInitiator(initiatorApplication, fileStoreFactory, initiatorSettings, fileLogFactory, messageFactory);
-        socketInitiator.start();
-        SessionID sessionId = (SessionID) socketInitiator.getSessions().get(0);
-        Session.lookupSession(sessionId).logon();
-        return sessionId;
+    private static void sendMarketDataRequests(SessionID sessionId) {
+        sendMarketDataSpotRequest_FullRefresh(sessionId);
+        sendMarketDataFwdRequest_FullRefresh(sessionId);
+        sendMarketDataNDFRequest_FullRefresh(sessionId);
+        sendMarketDataSpotRequest_IncrementalRefresh(sessionId);
+        sendMarketDataFwdRequest_IncrementalRefresh(sessionId);
+        sendMarketDataNDFRequest_IncrementalRefresh(sessionId);
     }
 
     private static void sendMarketDataSpotRequest_FullRefresh(SessionID sessionId) {

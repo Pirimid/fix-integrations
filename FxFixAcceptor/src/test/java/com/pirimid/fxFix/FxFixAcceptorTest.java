@@ -42,7 +42,8 @@ public class FxFixAcceptorTest extends TestCase {
             unsupportedMessageType.printStackTrace();
         }
 
-        verify(responseSender, times(1)).startSendingMarketDataRefreshResponse(marketDataRequest, sessionID);
+        verify(responseSender, times(1)).subscribeNewMarketDataRequest(marketDataRequest);
+        verify(responseSender, times(1)).startSendingMarketDataRefreshResponseIfNotStarted(sessionID);
 
     }
 
@@ -62,8 +63,13 @@ public class FxFixAcceptorTest extends TestCase {
             unsupportedMessageType.printStackTrace();
         }
 
+        try {
+            String reqId = newOrderSingle.getClOrdID().getValue();
+            verify(responseSender, times(1)).unsubscribeMarketDataRequest(reqId);
+        } catch (FieldNotFound fieldNotFound) {
+            fail("Field " + fieldNotFound.field + " must be available");
+        }
         verify(responseSender, times(1)).sendExecutionReportToClient(newOrderSingle, sessionID);
-
     }
 
 }

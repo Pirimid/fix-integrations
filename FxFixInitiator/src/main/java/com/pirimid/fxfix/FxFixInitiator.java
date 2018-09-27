@@ -72,9 +72,9 @@ public class FxFixInitiator extends MessageCracker implements Application {
         }
     }
 
-    private void sendNewOrderSingleRequest(quickfix.fix44.Message message, SessionID sessionId) {
+    private void sendNewOrderSingleRequest(quickfix.fix44.Message message, SessionID sessionId) throws FieldNotFound {
         NewOrderSingle newOrderSingle = RequestGenerator.generateNewOrderSingle(message);
-        logger.info("New Order Single Sent: " + newOrderSingle.toString());
+        logger.info("NewOrderSingle Sent for Id: " + newOrderSingle.getClOrdID().getValue() + " | " + newOrderSingle.toString());
         try {
             Session.sendToTarget(newOrderSingle, sessionId);
         } catch (SessionNotFound sessionNotFound) {

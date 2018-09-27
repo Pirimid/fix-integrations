@@ -50,13 +50,14 @@ public class FxFixAcceptor extends MessageCracker implements Application {
         crack(message, sessionID);
     }
 
-    public void onMessage(MarketDataRequest order, SessionID sessionID) throws FieldNotFound {
-        logger.info("###New Market Data Request Order Received: " + order.toString());
-        logger.info("###Market Data Request Id: " + order.getMDReqID().toString());
-        logger.info("###Subscriptoin Request Type: " + order.getSubscriptionRequestType().toString());
-        logger.info("###Market Depth: " + order.getMarketDepth().toString());
+    public void onMessage(MarketDataRequest request, SessionID sessionID) throws FieldNotFound {
+        logger.info("###New Market Data Request Order Received: " + request.toString());
+        logger.info("###Market Data Request Id: " + request.getMDReqID().toString());
+        logger.info("###Subscriptoin Request Type: " + request.getSubscriptionRequestType().toString());
+        logger.info("###Market Depth: " + request.getMarketDepth().toString());
 
-        responseSender.startSendingMarketDataRefreshResponse(order, sessionID);
+        responseSender.subscribeNewMarketDataRequest(request);
+        responseSender.startSendingMarketDataRefreshResponseIfNotStarted(sessionID);
     }
 
     public void onMessage(NewOrderSingle order, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
@@ -66,6 +67,8 @@ public class FxFixAcceptor extends MessageCracker implements Application {
         logger.info("###Type" + order.getOrdType().toString());
         logger.info("###TransactioTime" + order.getTransactTime().toString());
 
+        String reqId = order.getClOrdID().getValue();
+        responseSender.unsubscribeMarketDataRequest(reqId);
         responseSender.sendExecutionReportToClient(order, sessionID);
     }
 

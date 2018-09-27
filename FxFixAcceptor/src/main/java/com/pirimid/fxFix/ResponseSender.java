@@ -9,6 +9,8 @@ import quickfix.fix44.*;
 import quickfix.fix44.Message;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.pirimid.utils.Constants.NDF;
 
@@ -17,33 +19,45 @@ public class ResponseSender {
     private static final Logger logger = LoggerFactory.getLogger(ResponseSender.class);
     public static final String SAMPLE_SETTL_DATE = "20171117";
 
-    public void startSendingMarketDataRefreshResponse(MarketDataRequest order, SessionID sessionID) {
+    public Map<String, MarketDataRequest> subscribedRequests = new ConcurrentHashMap<>();
+    private boolean sendingMarketDataResponseStarted = false;
 
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                MDUpdateType mdUpdateType = new MDUpdateType();
-                int mdUpdateTypeValue = 1;
-                try {
-                    mdUpdateTypeValue = order.get(mdUpdateType).getValue();
-                } catch (FieldNotFound fieldNotFound) {
-                    logger.error("Field {} not found in order {}", mdUpdateType.getField(), order.toString());
-                }
-                while (Session.lookupSession(sessionID).hasResponder()) {
-                    if (isIncrementalRefreshRequested(mdUpdateTypeValue)) {
-                        sendMarketDataIncrementalRefreshToClient(order, sessionID);
-                    } else {
-                        sendMarketDataFullRefreshToClient(order, sessionID);
-                    }
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+    public void startSendingMarketDataRefreshResponseIfNotStarted(SessionID sessionID) {
+        if(sendingMarketDataResponseStarted) {
+            return;
+        } else {
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while (Session.lookupSession(sessionID).hasResponder()) {
+                        subscribedRequests.values().forEach(order -> sendMarketDataRefreshRequestForOrder(order, sessionID));
+                        try {
+                            Thread.sleep(2000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
-            }
-        });
-        thread.start();
+            });
+            thread.start();
+            sendingMarketDataResponseStarted = true;
+        }
+    }
+
+    private void sendMarketDataRefreshRequestForOrder(MarketDataRequest order, SessionID sessionID) {
+        MDUpdateType mdUpdateType = new MDUpdateType();
+        int mdUpdateTypeValue = 1;
+        try {
+            mdUpdateTypeValue = order.get(mdUpdateType).getValue();
+        } catch (FieldNotFound fieldNotFound) {
+            logger.error("Field {} not found in order {}", mdUpdateType.getField(), order.toString());
+        }
+
+        if (isIncrementalRefreshRequested(mdUpdateTypeValue)) {
+            sendMarketDataIncrementalRefreshToClient(order, sessionID);
+        } else {
+            sendMarketDataFullRefreshToClient(order, sessionID);
+        }
     }
 
     public void sendMarketDataFullRefreshToClient(MarketDataRequest order, SessionID sessionID) {
@@ -200,6 +214,21 @@ public class ResponseSender {
             Session.sendToTarget(message, sessionID);
         } catch (SessionNotFound sessionNotFound) {
             logger.error("Session not found for session id: {} : {}", sessionID.toString(), sessionNotFound);
+        }
+    }
+
+    public void subscribeNewMarketDataRequest(MarketDataRequest request) {
+        try {
+            String MDReqId = request.getMDReqID().getValue();
+            this.subscribedRequests.put(MDReqId, request);
+        } catch (FieldNotFound fieldNotFound) {
+            logger.error("Field {} not found", fieldNotFound.field, fieldNotFound);
+        }
+    }
+
+    public void unsubscribeMarketDataRequest(String reqId) {
+        if(this.subscribedRequests.containsKey(reqId)) {
+            this.subscribedRequests.remove(reqId);
         }
     }
 
