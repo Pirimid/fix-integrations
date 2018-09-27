@@ -36,7 +36,7 @@ public class FxFixAcceptor extends MessageCracker implements Application {
 
     @Override
     public void fromAdmin(Message message, SessionID sessionID) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, RejectLogon {
-        logger.info("Admin Message Received (Acceptor) :" + message.toString());
+        logger.debug("Admin Message Received (Acceptor) :" + message.toString());
     }
 
     @Override
@@ -46,7 +46,7 @@ public class FxFixAcceptor extends MessageCracker implements Application {
 
     @Override
     public void fromApp(Message message, SessionID sessionID) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
-        logger.info("Message received from App: " + message.toString() + " for session: " + sessionID.toString());
+        logger.debug("Message received from App: " + message.toString() + " for session: " + sessionID.toString());
         crack(message, sessionID);
     }
 
@@ -56,8 +56,22 @@ public class FxFixAcceptor extends MessageCracker implements Application {
         logger.info("###Subscriptoin Request Type: " + request.getSubscriptionRequestType().toString());
         logger.info("###Market Depth: " + request.getMarketDepth().toString());
 
-        responseSender.subscribeNewMarketDataRequest(request);
-        responseSender.startSendingMarketDataRefreshResponseIfNotStarted(sessionID);
+        char subscriptionType = request.getSubscriptionRequestType().getValue();
+        if(isSubscribeRequest(subscriptionType)) {
+            responseSender.subscribeNewMarketDataRequest(request);
+            responseSender.startSendingMarketDataRefreshResponseIfNotStarted(sessionID);
+        } else if(isUnsubscribeRequest(subscriptionType)) {
+            String reqId = request.getMDReqID().getValue();
+            responseSender.unsubscribeMarketDataRequest(reqId);
+        }
+    }
+
+    private boolean isUnsubscribeRequest(char subscriptionType) {
+        return subscriptionType == '2';
+    }
+
+    private boolean isSubscribeRequest(char subscriptionType) {
+        return subscriptionType == '1';
     }
 
     public void onMessage(NewOrderSingle order, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
