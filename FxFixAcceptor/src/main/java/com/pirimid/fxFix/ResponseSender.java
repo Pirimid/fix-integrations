@@ -10,7 +10,7 @@ import quickfix.fix44.Message;
 
 import java.util.List;
 
-import static com.pirimid.utils.FieldConstants.NDF;
+import static com.pirimid.utils.Constants.NDF;
 
 public class ResponseSender {
 

@@ -1,14 +1,17 @@
 package com.pirimid.uitility;
 
-import com.pirimid.utils.FieldConstants;
+import com.pirimid.utils.Constants;
 import quickfix.CharField;
+import quickfix.FieldNotFound;
 import quickfix.field.*;
 import quickfix.fix44.MarketDataRequest;
+import quickfix.fix44.NewOrderSingle;
+
+import java.util.Date;
 
 public class RequestGenerator {
 
 
-    public static final String EUR_USD = "EUR/USD";
     public static final String SAMPLE_MATURITY_DATE = "20181005";
     public static final String SAMPLE_SETTL_DATE = "20181001";
 
@@ -16,7 +19,7 @@ public class RequestGenerator {
         MarketDataRequest marketDataRequest = generateMarketDataRequest();
         marketDataRequest.set(new MDUpdateType(MDUpdateType.FULL_REFRESH));
         MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
-        noRelatedSym.set(new Symbol(EUR_USD));
+        noRelatedSym.set(new Symbol(Constants.EUR_USD));
         noRelatedSym.setField(new SettlType(SettlType.REGULAR));
         marketDataRequest.addGroup(noRelatedSym);
         return marketDataRequest;
@@ -26,7 +29,7 @@ public class RequestGenerator {
         MarketDataRequest marketDataRequest = generateMarketDataRequest();
         marketDataRequest.set(new MDUpdateType(MDUpdateType.FULL_REFRESH));
         MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
-        noRelatedSym.set(new Symbol(EUR_USD));
+        noRelatedSym.set(new Symbol(Constants.EUR_USD));
         noRelatedSym.setField(new SettlType(SettlType.FUTURE));
         noRelatedSym.setField(new SettlDate(SAMPLE_SETTL_DATE));
         marketDataRequest.addGroup(noRelatedSym);
@@ -37,10 +40,10 @@ public class RequestGenerator {
         MarketDataRequest marketDataRequest = generateMarketDataRequest();
         marketDataRequest.set(new MDUpdateType(MDUpdateType.FULL_REFRESH));
         MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
-        noRelatedSym.set(new Symbol(EUR_USD));
+        noRelatedSym.set(new Symbol(Constants.EUR_USD));
         noRelatedSym.setField(new SettlType(SettlType.FUTURE));
         noRelatedSym.setField(new SettlDate(SAMPLE_SETTL_DATE));
-        noRelatedSym.setField(new CharField(FieldConstants.NDF, '1'));
+        noRelatedSym.setField(new CharField(Constants.NDF, '1'));
         noRelatedSym.set(new MaturityDate(SAMPLE_MATURITY_DATE));
         marketDataRequest.addGroup(noRelatedSym);
         return marketDataRequest;
@@ -50,7 +53,7 @@ public class RequestGenerator {
         MarketDataRequest marketDataRequest = generateMarketDataRequest();
         marketDataRequest.set(new MDUpdateType(MDUpdateType.INCREMENTAL_REFRESH));
         MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
-        noRelatedSym.set(new Symbol(EUR_USD));
+        noRelatedSym.set(new Symbol(Constants.EUR_USD));
         noRelatedSym.setField(new SettlType(SettlType.REGULAR));
         marketDataRequest.addGroup(noRelatedSym);
         return marketDataRequest;
@@ -60,7 +63,7 @@ public class RequestGenerator {
         MarketDataRequest marketDataRequest = generateMarketDataRequest();
         marketDataRequest.set(new MDUpdateType(MDUpdateType.INCREMENTAL_REFRESH));
         MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
-        noRelatedSym.set(new Symbol(EUR_USD));
+        noRelatedSym.set(new Symbol(Constants.EUR_USD));
         noRelatedSym.setField(new SettlType(SettlType.FUTURE));
         noRelatedSym.setField(new SettlDate(SAMPLE_SETTL_DATE));
         marketDataRequest.addGroup(noRelatedSym);
@@ -71,10 +74,10 @@ public class RequestGenerator {
         MarketDataRequest marketDataRequest = generateMarketDataRequest();
         marketDataRequest.set(new MDUpdateType(MDUpdateType.INCREMENTAL_REFRESH));
         MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
-        noRelatedSym.set(new Symbol(EUR_USD));
+        noRelatedSym.set(new Symbol(Constants.EUR_USD));
         noRelatedSym.setField(new SettlType(SettlType.FUTURE));
         noRelatedSym.setField(new SettlDate(SAMPLE_SETTL_DATE));
-        noRelatedSym.setField(new CharField(FieldConstants.NDF, '1'));
+        noRelatedSym.setField(new CharField(Constants.NDF, '1'));
         noRelatedSym.set(new MaturityDate(SAMPLE_MATURITY_DATE));
         marketDataRequest.addGroup(noRelatedSym);
         return marketDataRequest;
@@ -95,6 +98,21 @@ public class RequestGenerator {
         noMDEntryType2.set(new MDEntryType(MDEntryType.OFFER));
         marketDataRequest.addGroup(noMDEntryType2);
         return marketDataRequest;
+    }
+
+    public static NewOrderSingle generateNewOrderSingle() {
+        NewOrderSingle newOrderSingle = new NewOrderSingle(new ClOrdID("1234"), new Side(Side.BUY), new TransactTime(new Date()), new OrdType(OrdType.FOREX_PREVIOUSLY_QUOTED));
+        newOrderSingle.set(new QuoteID("QuoteID"));
+        newOrderSingle.set(new Account("1432"));
+        newOrderSingle.setField(new Symbol(Constants.EUR_USD));
+        newOrderSingle.set(new CFICode(Constants.CFI_CODE_SPOT));
+        newOrderSingle.set(new OrderQty(15));
+        MDEntryPx mdEntryPx = new MDEntryPx();
+        newOrderSingle.set(new Price(1.16));
+        String currencyISOCode = Constants.EUR_USD.split("/")[0];
+        newOrderSingle.set(new Currency(currencyISOCode));
+        newOrderSingle.set(new TimeInForce(TimeInForce.FILL_OR_KILL));
+        return newOrderSingle;
     }
 
 }

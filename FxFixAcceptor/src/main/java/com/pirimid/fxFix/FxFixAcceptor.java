@@ -50,6 +50,15 @@ public class FxFixAcceptor extends MessageCracker implements Application {
         crack(message, sessionID);
     }
 
+    public void onMessage(MarketDataRequest order, SessionID sessionID) throws FieldNotFound {
+        logger.info("###New Market Data Request Order Received: " + order.toString());
+        logger.info("###Market Data Request Id: " + order.getMDReqID().toString());
+        logger.info("###Subscriptoin Request Type: " + order.getSubscriptionRequestType().toString());
+        logger.info("###Market Depth: " + order.getMarketDepth().toString());
+
+        responseSender.startSendingMarketDataRefreshResponse(order, sessionID);
+    }
+
     public void onMessage(NewOrderSingle order, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
         logger.info("###NewOrder Received:" + order.toString());
         logger.info("###Symbol" + order.getSymbol().toString());
@@ -58,15 +67,6 @@ public class FxFixAcceptor extends MessageCracker implements Application {
         logger.info("###TransactioTime" + order.getTransactTime().toString());
 
         responseSender.sendExecutionReportToClient(order, sessionID);
-    }
-
-    public void onMessage(MarketDataRequest order, SessionID sessionID) throws FieldNotFound {
-        logger.info("###New Market Data Request Order Received: " + order.toString());
-        logger.info("###Market Data Request Id: " + order.getMDReqID().toString());
-        logger.info("###Subscriptoin Request Type: " + order.getSubscriptionRequestType().toString());
-        logger.info("###Market Depth: " + order.getMarketDepth().toString());
-
-        responseSender.startSendingMarketDataRefreshResponse(order, sessionID);
     }
 
     public void setResponseSender(ResponseSender responseSender) {

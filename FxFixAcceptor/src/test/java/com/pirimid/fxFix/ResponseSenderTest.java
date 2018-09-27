@@ -1,7 +1,7 @@
 package com.pirimid.fxFix;
 
 import com.pirimid.uitility.RequestGenerator;
-import com.pirimid.utils.FieldConstants;
+import com.pirimid.utils.Constants;
 import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
@@ -12,12 +12,10 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import quickfix.*;
-import quickfix.field.SenderCompID;
-import quickfix.field.SettlType;
-import quickfix.field.TargetCompID;
-import quickfix.fix44.MarketDataIncrementalRefresh;
-import quickfix.fix44.MarketDataRequest;
-import quickfix.fix44.MarketDataSnapshotFullRefresh;
+import quickfix.Message;
+import quickfix.MessageFactory;
+import quickfix.field.*;
+import quickfix.fix44.*;
 
 import static org.mockito.Mockito.times;
 
@@ -72,6 +70,7 @@ public class ResponseSenderTest extends TestCase {
         assertMarketDataSnapshotFullRefresh(returnedMessage);
         assert_Sender_Target_Session(returnedSessionId, header);
         assertSpotRequest(returnedMessage);
+        assertMDRequestId(marketDataRequest, returnedMessage);
     }
 
     @Test
@@ -95,6 +94,7 @@ public class ResponseSenderTest extends TestCase {
         assertMarketDataSnapshotFullRefresh(returnedMessage);
         assert_Sender_Target_Session(returnedSessionId, header);
         assertForwardOrNDFRequest(returnedMessage);
+        assertMDRequestId(marketDataRequest, returnedMessage);
     }
 
     @Test
@@ -118,6 +118,7 @@ public class ResponseSenderTest extends TestCase {
         assertMarketDataSnapshotFullRefresh(returnedMessage);
         assert_Sender_Target_Session(returnedSessionId, header);
         assertNDFRequest(returnedMessage);
+        assertMDRequestId(marketDataRequest, returnedMessage);
     }
 
     @Test
@@ -141,6 +142,7 @@ public class ResponseSenderTest extends TestCase {
         assertMarketDataIncrementalRefresh(returnedMessage);
         assert_Sender_Target_Session(returnedSessionId, header);
         assertSpotRequest(returnedMessage);
+        assertMDRequestId(marketDataRequest, returnedMessage);
     }
 
     @Test
@@ -164,6 +166,7 @@ public class ResponseSenderTest extends TestCase {
         assertMarketDataIncrementalRefresh(returnedMessage);
         assert_Sender_Target_Session(returnedSessionId, header);
         assertForwardOrNDFRequest(returnedMessage);
+        assertMDRequestId(marketDataRequest, returnedMessage);
     }
 
     @Test
@@ -187,6 +190,30 @@ public class ResponseSenderTest extends TestCase {
         assertMarketDataIncrementalRefresh(returnedMessage);
         assert_Sender_Target_Session(returnedSessionId, header);
         assertNDFRequest(returnedMessage);
+        assertMDRequestId(marketDataRequest, returnedMessage);
+    }
+
+    @Test
+    public void testSendExecutionReport() throws Exception {
+        NewOrderSingle newOrderSingle = RequestGenerator.generateNewOrderSingle();
+        PowerMockito.spy(Session.class);
+
+        responseSender.sendExecutionReportToClient(newOrderSingle, sessionID);
+
+        //Assert
+        ArgumentCaptor<Message> messageArgumentCaptor = ArgumentCaptor.forClass(Message.class);
+        ArgumentCaptor<SessionID> sessionIdArgumentCaptor = ArgumentCaptor.forClass(SessionID.class);
+
+        PowerMockito.verifyStatic(Session.class, times(1));
+        Session.sendToTarget(messageArgumentCaptor.capture(), sessionIdArgumentCaptor.capture());
+
+        Message returnedMessage = messageArgumentCaptor.getValue();
+        SessionID returnedSessionId = sessionIdArgumentCaptor.getValue();
+        Message.Header header = returnedMessage.getHeader();
+
+        assertExecutionReportRequest(returnedMessage);
+        assert_Sender_Target_Session(returnedSessionId, header);
+        assertClientOrderId(newOrderSingle, returnedMessage);
     }
 
     private void assertMarketDataSnapshotFullRefresh(Message returnedMessage) {
@@ -197,6 +224,11 @@ public class ResponseSenderTest extends TestCase {
     private void assertMarketDataIncrementalRefresh(Message returnedMessage) {
         assertTrue("Message which sends back to initiator/client need be an instance of MarketDataIncrementalRefresh",
                 returnedMessage instanceof MarketDataIncrementalRefresh);
+    }
+
+    private void assertExecutionReportRequest(Message returnedMessage) {
+        assertTrue("Message which sends back to initiator/client need be an instance of ExecutionReport",
+                returnedMessage instanceof ExecutionReport);
     }
 
     private void assert_Sender_Target_Session(SessionID returnedSessionId, Message.Header header) throws FieldNotFound {
@@ -230,7 +262,33 @@ public class ResponseSenderTest extends TestCase {
 
     private void assertNDFRequest(Message returnedMessage) throws FieldNotFound {
         assertForwardOrNDFRequest(returnedMessage);
-        assertEquals("For NDF request, value for field NDF needs to be 1", '1', returnedMessage.getField(new CharField(FieldConstants.NDF)).getValue());
+        assertEquals("For NDF request, value for field NDF needs to be 1", '1', returnedMessage.getField(new CharField(Constants.NDF)).getValue());
+    }
+
+    private void assertMDRequestId(MarketDataRequest order, Message returnedMessage) {
+        String MDRequestId = "";
+        String returnedMDRequestId = "";
+        try {
+            MDRequestId = order.getMDReqID().getValue();
+            returnedMDRequestId = returnedMessage.getField(new MDReqID()).getValue();
+        } catch (FieldNotFound fieldNotFound) {
+            fail("Field " + fieldNotFound.field + " must be available");
+        }
+        assertEquals("Market Data Request Id of MarketDataRequest and MarketDataRequest's Response must be same", MDRequestId, returnedMDRequestId);
+
+    }
+
+    private void assertClientOrderId(NewOrderSingle newOrderSingle, Message returnedMessage) {
+        String clientOrderId = "";
+        String executionReportOrderId = "";
+        try {
+            clientOrderId = newOrderSingle.getClOrdID().getValue();
+            executionReportOrderId = returnedMessage.getField(new ClOrdID()).getValue();
+        } catch (FieldNotFound fieldNotFound) {
+            fail("Field " + fieldNotFound.field + " must be available");
+        }
+        assertEquals("Client order id of NewOrderSingle request and ExecutionReport must be same", clientOrderId, executionReportOrderId);
+
     }
 
     @After
