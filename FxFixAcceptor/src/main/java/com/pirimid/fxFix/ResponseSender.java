@@ -34,7 +34,7 @@ public class ResponseSender {
                         try {
                             Thread.sleep(2000);
                         } catch (InterruptedException e) {
-                            e.printStackTrace();
+                            logger.error("Thread execution interrupted", e);
                         }
                     }
                 }
@@ -57,6 +57,11 @@ public class ResponseSender {
             sendMarketDataIncrementalRefreshToClient(order, sessionID);
         } else {
             sendMarketDataFullRefreshToClient(order, sessionID);
+        }
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            logger.error("Thread execution interrupted", e);
         }
     }
 
