@@ -1,14 +1,18 @@
 package com.pirimid.fxFix;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import quickfix.*;
 
 public class StartAcceptor {
 
+    private static final Logger logger = LoggerFactory.getLogger(StartAcceptor.class);
+    private static final String CONFIG_FILE_NAME = "./acceptorSettings.txt";
+
     public static void main(String args[]) {
         SocketAcceptor socketAcceptor = null;
         try {
-            SessionSettings executorSettings = new SessionSettings(
-                    "./acceptorSettings.txt");
+            SessionSettings executorSettings = new SessionSettings(CONFIG_FILE_NAME);
             Application application = new FxFixAcceptor();
             FileStoreFactory fileStoreFactory = new FileStoreFactory(
                     executorSettings);
@@ -18,7 +22,7 @@ public class StartAcceptor {
                     executorSettings, fileLogFactory, messageFactory);
             socketAcceptor.start();
         } catch (ConfigError configError) {
-            configError.printStackTrace();
+            logger.error("Error while configuring session", configError);
         }
     }
 }

@@ -28,17 +28,16 @@ public class ResponseSenderTest extends TestCase {
     private ResponseSender responseSender = new ResponseSender();
     private SocketAcceptor socketAcceptor = null;
 
+    private static final String TEST_CONFIG_FILE_NAME = "./acceptorSettingsTest.txt";
     private static final String TEST_SENDER_COMP_ID = "FX-FIX-ACCEPTOR-TEST";
     private static final String TEST_TARGET_COMP_ID = "FX-FIX-INITIATOR-TEST";
-    private static final double SAMPLE_PRICE = 1.16;
 
     private SessionID sessionID = new SessionID(FixVersions.BEGINSTRING_FIX44, TEST_SENDER_COMP_ID, TEST_TARGET_COMP_ID);
 
     @Before
     public void setUp() {
         try {
-            SessionSettings executorSettings = new SessionSettings(
-                    "./acceptorSettingsTest.txt");
+            SessionSettings executorSettings = new SessionSettings(TEST_CONFIG_FILE_NAME);
             Application application = new FxFixAcceptor();
             FileStoreFactory fileStoreFactory = new FileStoreFactory(
                     executorSettings);
