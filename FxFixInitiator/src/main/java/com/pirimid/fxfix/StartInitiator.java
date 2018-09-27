@@ -80,7 +80,7 @@ public class StartInitiator {
 
     private static void sendMarketDataFwdRequest_FullRefresh(SessionID sessionId) {
         MarketDataRequest marketDataRequest = RequestGenerator.generateMarketDataRequest_Fwd_FullRefresh();
-        logger.info("New Marked Data Fwd Full Refresh Request Sent: " + marketDataRequest.toString());
+        logger.info("New Marked Data Forward Full Refresh Request Sent: " + marketDataRequest.toString());
         sendMessageToTarget(sessionId, marketDataRequest);
     }
 
@@ -98,7 +98,7 @@ public class StartInitiator {
 
     private static void sendMarketDataFwdRequest_IncrementalRefresh(SessionID sessionId) {
         MarketDataRequest marketDataRequest = RequestGenerator.generateMarketDataRequest_Fwd_IncrementalRefresh();
-        logger.info("New Marked Data Fwd Incremental Refresh Request Sent: " + marketDataRequest.toString());
+        logger.info("New Marked Data Forward Incremental Refresh Request Sent: " + marketDataRequest.toString());
         sendMessageToTarget(sessionId, marketDataRequest);
     }
 

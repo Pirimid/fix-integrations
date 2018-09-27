@@ -38,7 +38,7 @@ public class FxFixInitiator extends MessageCracker implements Application {
 
     @Override
     public void fromAdmin(Message message, SessionID sessionID) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, RejectLogon {
-        logger.info("Admin Message Received (Initiator) :" + message.toString());
+        logger.debug("Admin Message Received (Initiator) :" + message.toString());
     }
 
     @Override
@@ -48,7 +48,7 @@ public class FxFixInitiator extends MessageCracker implements Application {
 
     @Override
     public void fromApp(Message message, SessionID sessionID) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
-        logger.info("Application Response Received (Initiator) :" + message.toString());
+        logger.debug("Application Response Received (Initiator) :" + message.toString());
         crack(message, sessionID);
     }
 
@@ -56,9 +56,10 @@ public class FxFixInitiator extends MessageCracker implements Application {
         String MDReqId = message.getMDReqID().getValue();
         MDEntryPx mdEntryPx = new MDEntryPx();
         Double value = message.getField(mdEntryPx).getValue();
-        logger.info("MarketDataSnapshotFullRefresh for MDReqId: " + MDReqId + " | Value: " + value);
-        if(value > 1.8) {
-            sendNewOrderSingleRequest(message, sessionId);
+        logger.info("MDReqId: " + MDReqId + " | Price: " + value + " | MarketDataSnapshotFullRefresh");
+        if (value > 1.9) {
+            NewOrderSingle newOrderSingle = RequestGenerator.generateNewSellOrderSingle(message);
+            sendNewOrderSingleRequest(newOrderSingle, sessionId);
         }
     }
 
@@ -66,14 +67,14 @@ public class FxFixInitiator extends MessageCracker implements Application {
         String MDReqId = message.getMDReqID().getValue();
         MDEntryPx mdEntryPx = new MDEntryPx();
         Double value = message.getGroup(1, NoMDEntries.FIELD).getField(mdEntryPx).getValue();
-        logger.info("MarketDataIncrementalRefresh for MDReqId: " + MDReqId + " | Value: " + value);
-        if(value > 1.8) {
-            sendNewOrderSingleRequest(message, sessionId);
+        logger.info("MDReqId: " + MDReqId + " | Price: " + value + " | MarketDataIncrementalRefresh");
+        if (value < 1.1) {
+            NewOrderSingle newOrderSingle = RequestGenerator.generateNewBuyOrderSingle(message);
+            sendNewOrderSingleRequest(newOrderSingle, sessionId);
         }
     }
 
-    private void sendNewOrderSingleRequest(quickfix.fix44.Message message, SessionID sessionId) throws FieldNotFound {
-        NewOrderSingle newOrderSingle = RequestGenerator.generateNewOrderSingle(message);
+    private void sendNewOrderSingleRequest(NewOrderSingle newOrderSingle, SessionID sessionId) throws FieldNotFound {
         logger.info("NewOrderSingle Sent for Id: " + newOrderSingle.getClOrdID().getValue() + " | " + newOrderSingle.toString());
         try {
             Session.sendToTarget(newOrderSingle, sessionId);
@@ -84,6 +85,6 @@ public class FxFixInitiator extends MessageCracker implements Application {
 
     public void onMessage(ExecutionReport response, SessionID sessionId) throws FieldNotFound {
         String MDReqId = response.getField(new ClOrdID()).getValue();
-        logger.info("ExecutionReport for Request Id: " + MDReqId + " | " + response.toString());
+        logger.info("Request Id: " + MDReqId + " | ExecutionReport");
     }
 }

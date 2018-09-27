@@ -18,6 +18,7 @@ public class RequestGenerator {
 
     public static final String SAMPLE_MATURITY_DATE = "20181005";
     public static final String SAMPLE_SETTL_DATE = "20181001";
+    public static final String SAMPLE_ORDER_ID = "1234";
 
     public static MarketDataRequest generateMarketDataRequest_Spot_FullRefresh() {
         MarketDataRequest marketDataRequest = generateMarketDataRequest();
@@ -104,44 +105,63 @@ public class RequestGenerator {
         return marketDataRequest;
     }
 
-    public static NewOrderSingle generateNewOrderSingle(Message message) {
+    public static NewOrderSingle generateNewBuyOrderSingle(Message message) {
         NewOrderSingle newOrderSingle = null;
         try {
-            String orderId = "1234";
+            String orderId = SAMPLE_ORDER_ID;
             if (message.isSetField(MDReqID.FIELD)) {
                 orderId = message.getField(new MDReqID()).getValue();
             }
             newOrderSingle = new NewOrderSingle(new ClOrdID(orderId), new Side(Side.BUY), new TransactTime(new Date()), new OrdType(OrdType.FOREX_PREVIOUSLY_QUOTED));
-            if (message.isSetField(new QuoteEntryID())) {
-                newOrderSingle.set(new QuoteID(message.getField(new QuoteEntryID()).getValue()));
-            } else {
-                newOrderSingle.set(new QuoteID("QuoteID"));
-            }
-            newOrderSingle.set(new Account("1432"));
-            Symbol symbol = (Symbol) message.getField(new Symbol());
-            newOrderSingle.setField(symbol);
-            String CFICodeValue = getCFICodeValue(message);
-            newOrderSingle.set(new CFICode(CFICodeValue));
-            newOrderSingle.set(new OrderQty(15));
-            MDEntryPx mdEntryPx = new MDEntryPx();
-            Double value = message.getGroup(1, NoMDEntries.FIELD).getField(mdEntryPx).getValue();
-            newOrderSingle.set(new Price(value));
-            String currencyISOCode = symbol.getValue().split("/")[0];
-            newOrderSingle.set(new Currency(currencyISOCode));
-            newOrderSingle.set(new TimeInForce(TimeInForce.FILL_OR_KILL));
-            if (message.isSetField(SettlType.FIELD)) {
-                newOrderSingle.setField(message.getField(new SettlType()));
-            }
-            if (message.isSetField(SettlDate.FIELD)) {
-                newOrderSingle.setField(message.getField(new SettlDate()));
-            }
-            if (message.isSetField(MaturityDate.FIELD)) {
-                newOrderSingle.setField(message.getField(new MaturityDate()));
-            }
+            setNewOrderSingleFields(message, newOrderSingle);
         } catch (FieldNotFound fieldNotFound) {
             logger.error("Field {} not found", fieldNotFound.field, fieldNotFound);
         }
         return newOrderSingle;
+    }
+
+    public static NewOrderSingle generateNewSellOrderSingle(Message message) {
+        NewOrderSingle newOrderSingle = null;
+        try {
+            String orderId = SAMPLE_ORDER_ID;
+            if (message.isSetField(MDReqID.FIELD)) {
+                orderId = message.getField(new MDReqID()).getValue();
+            }
+            newOrderSingle = new NewOrderSingle(new ClOrdID(orderId), new Side(Side.SELL), new TransactTime(new Date()), new OrdType(OrdType.FOREX_PREVIOUSLY_QUOTED));
+            setNewOrderSingleFields(message, newOrderSingle);
+        } catch (FieldNotFound fieldNotFound) {
+            logger.error("Field {} not found", fieldNotFound.field, fieldNotFound);
+        }
+        return newOrderSingle;
+    }
+
+    private static void setNewOrderSingleFields(Message message, NewOrderSingle newOrderSingle) throws FieldNotFound {
+        if (message.isSetField(new QuoteEntryID())) {
+            newOrderSingle.set(new QuoteID(message.getField(new QuoteEntryID()).getValue()));
+        } else {
+            newOrderSingle.set(new QuoteID("QuoteID"));
+        }
+        newOrderSingle.set(new Account("1432"));
+        Symbol symbol = (Symbol) message.getField(new Symbol());
+        newOrderSingle.setField(symbol);
+        String CFICodeValue = getCFICodeValue(message);
+        newOrderSingle.set(new CFICode(CFICodeValue));
+        newOrderSingle.set(new OrderQty(15));
+        MDEntryPx mdEntryPx = new MDEntryPx();
+        Double value = message.getGroup(1, NoMDEntries.FIELD).getField(mdEntryPx).getValue();
+        newOrderSingle.set(new Price(value));
+        String currencyISOCode = symbol.getValue().split("/")[0];
+        newOrderSingle.set(new Currency(currencyISOCode));
+        newOrderSingle.set(new TimeInForce(TimeInForce.FILL_OR_KILL));
+        if (message.isSetField(SettlType.FIELD)) {
+            newOrderSingle.setField(message.getField(new SettlType()));
+        }
+        if (message.isSetField(SettlDate.FIELD)) {
+            newOrderSingle.setField(message.getField(new SettlDate()));
+        }
+        if (message.isSetField(MaturityDate.FIELD)) {
+            newOrderSingle.setField(message.getField(new MaturityDate()));
+        }
     }
 
     private static String getCFICodeValue(Message message) throws FieldNotFound {
