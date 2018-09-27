@@ -4,6 +4,7 @@ import com.pirimid.utils.RequestGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickfix.*;
+import quickfix.field.ClOrdID;
 import quickfix.field.MDEntryPx;
 import quickfix.field.NoMDEntries;
 import quickfix.fix44.ExecutionReport;
@@ -52,38 +53,37 @@ public class FxFixInitiator extends MessageCracker implements Application {
     }
 
     public void onMessage(MarketDataSnapshotFullRefresh message, SessionID sessionId) throws FieldNotFound {
-        String MDReqId = message.getMDReqID().toString();
+        String MDReqId = message.getMDReqID().getValue();
         MDEntryPx mdEntryPx = new MDEntryPx();
         Double value = message.getField(mdEntryPx).getValue();
         logger.info("MarketDataSnapshotFullRefresh for MDReqId: " + MDReqId + " | Value: " + value);
         if(value > 1.8) {
-            NewOrderSingle newOrderSingle = RequestGenerator.generateNewOrderSingle(message);
-            logger.info("New Order Single Sent: " + newOrderSingle.toString());
-            try {
-                Session.sendToTarget(newOrderSingle, sessionId);
-            } catch (SessionNotFound sessionNotFound) {
-                logger.error("Session not found for session id: {}", sessionId.toString(), sessionNotFound);
-            }
+            sendNewOrderSingleRequest(message, sessionId);
         }
     }
 
     public void onMessage(MarketDataIncrementalRefresh message, SessionID sessionId) throws FieldNotFound {
-        String MDReqId = message.getMDReqID().toString();
+        String MDReqId = message.getMDReqID().getValue();
         MDEntryPx mdEntryPx = new MDEntryPx();
         Double value = message.getGroup(1, NoMDEntries.FIELD).getField(mdEntryPx).getValue();
         logger.info("MarketDataIncrementalRefresh for MDReqId: " + MDReqId + " | Value: " + value);
         if(value > 1.8) {
-            NewOrderSingle newOrderSingle = RequestGenerator.generateNewOrderSingle(message);
-            logger.info("New Order Single Sent: " + newOrderSingle.toString());
-            try {
-                Session.sendToTarget(newOrderSingle, sessionId);
-            } catch (SessionNotFound sessionNotFound) {
-                logger.error("Session not found for session id: {}", sessionId.toString(), sessionNotFound);
-            }
+            sendNewOrderSingleRequest(message, sessionId);
+        }
+    }
+
+    private void sendNewOrderSingleRequest(quickfix.fix44.Message message, SessionID sessionId) {
+        NewOrderSingle newOrderSingle = RequestGenerator.generateNewOrderSingle(message);
+        logger.info("New Order Single Sent: " + newOrderSingle.toString());
+        try {
+            Session.sendToTarget(newOrderSingle, sessionId);
+        } catch (SessionNotFound sessionNotFound) {
+            logger.error("Session not found for session id: {}", sessionId.toString(), sessionNotFound);
         }
     }
 
     public void onMessage(ExecutionReport response, SessionID sessionId) throws FieldNotFound {
-        logger.info("Execution report repsonse : " + response.toString());
+        String MDReqId = response.getField(new ClOrdID()).getValue();
+        logger.info("ExecutionReport for Request Id: " + MDReqId + " | " + response.toString());
     }
 }

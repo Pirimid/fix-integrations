@@ -5,9 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickfix.*;
 import quickfix.field.*;
-import quickfix.fix44.MarketDataIncrementalRefresh;
-import quickfix.fix44.MarketDataRequest;
-import quickfix.fix44.MarketDataSnapshotFullRefresh;
+import quickfix.fix44.*;
 import quickfix.fix44.Message;
 
 import java.util.List;
@@ -48,12 +46,12 @@ public class ResponseSender {
         thread.start();
     }
 
-    protected void sendMarketDataFullRefreshToClient(MarketDataRequest order, SessionID sessionID) {
+    public void sendMarketDataFullRefreshToClient(MarketDataRequest order, SessionID sessionID) {
         List<Group> groups = order.getGroups(NoRelatedSym.FIELD);
 
         for (Group group : groups) {
             MarketDataSnapshotFullRefresh marketDataSnapshotFullRefresh = prepareMarketDataSnapshotFullRefreshRequest(order, group);
-            sendMessageToTarget(sessionID, marketDataSnapshotFullRefresh);
+            sendMessageToTarget(marketDataSnapshotFullRefresh, sessionID);
         }
     }
 
@@ -93,12 +91,12 @@ public class ResponseSender {
         return marketDataSnapshotFullRefresh;
     }
 
-    protected void sendMarketDataIncrementalRefreshToClient(MarketDataRequest order, SessionID sessionID) {
+    public void sendMarketDataIncrementalRefreshToClient(MarketDataRequest order, SessionID sessionID) {
         List<Group> groups = order.getGroups(NoRelatedSym.FIELD);
 
         for (Group group : groups) {
             MarketDataIncrementalRefresh marketDataIncrementalRefresh = prepareMarketDataIncrementalRefreshRequest(order, group);
-            sendMessageToTarget(sessionID, marketDataIncrementalRefresh);
+            sendMessageToTarget(marketDataIncrementalRefresh, sessionID);
         }
     }
 
@@ -166,7 +164,38 @@ public class ResponseSender {
         return mdEntryGroup;
     }
 
-    private void sendMessageToTarget(SessionID sessionID, Message message) {
+    public void sendExecutionReportToClient(NewOrderSingle order, SessionID sessionID) {
+        ExecutionReport accept = prepareExecutionReport(order);
+        logger.info("###Sending Order Acceptance:" + accept.toString() + "sessionID:" + sessionID.toString());
+        sendMessageToTarget(accept, sessionID);
+    }
+
+    private ExecutionReport prepareExecutionReport(NewOrderSingle order) {
+        ExecutionReport accept = null;
+        try {
+            accept = new ExecutionReport(new OrderID("133456"), new ExecID("789"),
+                    new ExecType(ExecType.FILL), new OrdStatus(OrdStatus.FILLED), order.getSide(), new LeavesQty(2),
+                    new CumQty(0), new AvgPx(order.getPrice().getValue()));
+            accept.set(order.getClOrdID());
+            accept.set(order.getAccount());
+            accept.set(order.getSymbol());
+            accept.set(order.getOrderQty());
+            accept.set(order.getOrdType());
+            accept.set(order.getPrice());
+            accept.set(order.getCurrency());
+            accept.set(order.getTimeInForce());
+            accept.set(new LastQty(order.getOrderQty().getValue()));
+            accept.set(new LastPx(order.getPrice().getValue()));
+            accept.set(new LastSpotRate(order.getPrice().getValue()));
+            accept.set(order.getTransactTime());
+            accept.set(new TradeDate("20180927"));
+        } catch (FieldNotFound fieldNotFound) {
+            logger.error("Field {} not found", fieldNotFound.field, fieldNotFound);
+        }
+        return accept;
+    }
+
+    private void sendMessageToTarget(Message message, SessionID sessionID) {
         try {
             Session.sendToTarget(message, sessionID);
         } catch (SessionNotFound sessionNotFound) {

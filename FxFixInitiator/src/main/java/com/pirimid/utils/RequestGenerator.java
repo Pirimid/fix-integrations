@@ -105,8 +105,13 @@ public class RequestGenerator {
     }
 
     public static NewOrderSingle generateNewOrderSingle(Message message) {
-        NewOrderSingle newOrderSingle = new NewOrderSingle(new ClOrdID("1234"), new Side(Side.BUY), new TransactTime(new Date()), new OrdType(OrdType.FOREX_PREVIOUSLY_QUOTED));
+        NewOrderSingle newOrderSingle = null;
         try {
+            String orderId = "1234";
+            if (message.isSetField(MDReqID.FIELD)) {
+                orderId = message.getField(new MDReqID()).getValue();
+            }
+            newOrderSingle = new NewOrderSingle(new ClOrdID(orderId), new Side(Side.BUY), new TransactTime(new Date()), new OrdType(OrdType.FOREX_PREVIOUSLY_QUOTED));
             if (message.isSetField(new QuoteEntryID())) {
                 newOrderSingle.set(new QuoteID(message.getField(new QuoteEntryID()).getValue()));
             } else {
@@ -142,11 +147,11 @@ public class RequestGenerator {
     private static String getCFICodeValue(Message message) throws FieldNotFound {
         String CFICodeValue = "";
         String settlTypeValue = "0";
-        if(message.isSetField(SettlType.FIELD)) {
+        if (message.isSetField(SettlType.FIELD)) {
             settlTypeValue = message.getField(new SettlType()).getValue();
         }
         char NDFValue = '0';
-        if(message.isSetField(Constants.NDF)) {
+        if (message.isSetField(Constants.NDF)) {
             NDFValue = message.getField(new CharField(Constants.NDF)).getValue();
         }
         if (isNDFOrder(settlTypeValue, NDFValue)) {

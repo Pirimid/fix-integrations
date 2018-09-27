@@ -3,7 +3,6 @@ package com.pirimid.fxFix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickfix.*;
-import quickfix.field.*;
 import quickfix.fix44.MarketDataRequest;
 import quickfix.fix44.NewOrderSingle;
 
@@ -58,7 +57,7 @@ public class FxFixAcceptor extends MessageCracker implements Application {
         logger.info("###Type" + order.getOrdType().toString());
         logger.info("###TransactioTime" + order.getTransactTime().toString());
 
-        sendMessageToClient(order, sessionID);
+        responseSender.sendExecutionReportToClient(order, sessionID);
     }
 
     public void onMessage(MarketDataRequest order, SessionID sessionID) throws FieldNotFound {
@@ -68,26 +67,6 @@ public class FxFixAcceptor extends MessageCracker implements Application {
         logger.info("###Market Depth: " + order.getMarketDepth().toString());
 
         responseSender.startSendingMarketDataRefreshResponse(order, sessionID);
-    }
-
-    public void sendMessageToClient(NewOrderSingle order, SessionID sessionID) {
-        try {
-            OrderQty orderQty = null;
-
-            orderQty = new OrderQty(56.0);
-            quickfix.fix40.ExecutionReport accept = new quickfix.fix40.ExecutionReport(new OrderID("133456"), new ExecID("789"),
-                    new ExecTransType(ExecTransType.NEW), new OrdStatus(OrdStatus.NEW), order.getSymbol(), order.getSide(),
-                    orderQty, new LastShares(0), new LastPx(0), new CumQty(0), new AvgPx(0));
-            accept.set(order.getClOrdID());
-            logger.info("###Sending Order Acceptance:" + accept.toString() + "sessionID:" + sessionID.toString());
-            Session.sendToTarget(accept, sessionID);
-        } catch (RuntimeException e) {
-            LogUtil.logThrowable(sessionID, e.getMessage(), e);
-        } catch (FieldNotFound fieldNotFound) {
-            logger.error("Field {} not found", fieldNotFound.field, fieldNotFound);
-        } catch (SessionNotFound sessionNotFound) {
-            logger.error("Session not found for session id: {}", sessionID.toString(), sessionNotFound);
-        }
     }
 
     public void setResponseSender(ResponseSender responseSender) {
