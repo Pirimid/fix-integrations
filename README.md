@@ -3,34 +3,28 @@ FIX client/server sample app for FX market data and trading using quickFix engin
 
 [![Build Status](https://travis-ci.com/Pirimid/fix-integrations.svg?branch=master)](https://travis-ci.com/Pirimid/fix-integrations)
 
-## Types of Requests that are supported by this Sample Application
+## Getting Started
 
-### Initiator
- 1. Market Data Spot Request
-    1. Full Refresh
-    2. Incremental Refresh
-    3. Unsubscribe
-2. Market Data Forward Request
-    1. Full Refresh
-    2. Incremental Refresh
-    3. Unsubscribe
-3. Market Data NDF Request
-    1. Full Refresh
-    2. Incremental Refresh
-    3. Unsubscribe
-4. New Order Single Request
+1. Clone the repository
+2. Do mvn clean install on both `FxFixAcceptor` and `FxFixInitiator` projects. To do that you can run below commands in root directory of this repository. 
+   1. `mvn -f ./FxFixAcceptor/ clean install`
+   2. `mvn -f ./FxFixInitiator/ clean install`
+3. Start the Acceptor `StartAcceptor.class`
+4. Start the Initiator `StartInitiator.class`
 
-### Acceptor
-1. Market Data Full Refresh
-    1. Spot
-    2. Forward
-    3. NDF
-2. Market Data Incremental Refresh
-    1. Spot
-    2. Forward
-    3. NDF
-3. Market Data Unsubscribe
-    1. Spot
-    2. Forward
-    3. NDF
-4. Execution Report
+- You can modify the configurations of acceptor and initiator in `acceptorSettings.txt` and `initiatorSettings.txt` files.
+
+
+## Types of Requests that are supported by this Application
+
+Client/Initiator can send the different market data requests:
+1. Spot
+2. Forward
+3. NDF
+4. Unsubscribe
+5. New Order Single
+
+Server/Acceptor can handle all above mentioned requests from client and can send response according to the type of request it gets:
+1. Full Refresh
+2. Incremental Refresh
+3. Execution Report
