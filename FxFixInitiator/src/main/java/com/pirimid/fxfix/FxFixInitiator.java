@@ -56,8 +56,8 @@ public class FxFixInitiator extends MessageCracker implements Application {
         String MDReqId = message.getMDReqID().getValue();
         MDEntryPx mdEntryPx = new MDEntryPx();
         Double value = message.getField(mdEntryPx).getValue();
-        logger.info("MDReqId: " + MDReqId + " | Price: " + value + " | MarketDataSnapshotFullRefresh");
-        if (value > 1.9) {
+        logger.info("MDReqId: " + MDReqId + " | Price: " + value + " | FullRefresh");
+        if (value > 1.92) {
             NewOrderSingle newOrderSingle = RequestGenerator.generateNewSellOrderSingle(message);
             sendNewOrderSingleRequest(newOrderSingle, sessionId);
         }
@@ -67,15 +67,15 @@ public class FxFixInitiator extends MessageCracker implements Application {
         String MDReqId = message.getMDReqID().getValue();
         MDEntryPx mdEntryPx = new MDEntryPx();
         Double value = message.getGroup(1, NoMDEntries.FIELD).getField(mdEntryPx).getValue();
-        logger.info("MDReqId: " + MDReqId + " | Price: " + value + " | MarketDataIncrementalRefresh");
-        if (value < 1.1) {
+        logger.info("MDReqId: " + MDReqId + " | Price: " + value + " | IncrementalRefresh");
+        if (value < 1.08) {
             NewOrderSingle newOrderSingle = RequestGenerator.generateNewBuyOrderSingle(message);
             sendNewOrderSingleRequest(newOrderSingle, sessionId);
         }
     }
 
     private void sendNewOrderSingleRequest(NewOrderSingle newOrderSingle, SessionID sessionId) throws FieldNotFound {
-        logger.info("NewOrderSingle Sent for Id: " + newOrderSingle.getClOrdID().getValue() + " | " + newOrderSingle.toString());
+        logger.info("NewOrderSingle Sent for Id: " + newOrderSingle.getClOrdID().getValue() + " | Price: " + newOrderSingle.getPrice().getValue() + " | " + newOrderSingle.toString());
         try {
             Session.sendToTarget(newOrderSingle, sessionId);
         } catch (SessionNotFound sessionNotFound) {

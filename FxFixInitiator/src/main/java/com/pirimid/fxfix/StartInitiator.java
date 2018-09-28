@@ -64,47 +64,58 @@ public class StartInitiator {
     }
 
     private static void sendMarketDataRequests(SessionID sessionId) {
-        sendMarketDataSpotRequest_FullRefresh(sessionId);
-        sendMarketDataFwdRequest_FullRefresh(sessionId);
-        sendMarketDataNDFRequest_FullRefresh(sessionId);
-        sendMarketDataSpotRequest_IncrementalRefresh(sessionId);
-        sendMarketDataFwdRequest_IncrementalRefresh(sessionId);
-        sendMarketDataNDFRequest_IncrementalRefresh(sessionId);
+        try {
+            sendMarketDataSpotRequest_FullRefresh(sessionId);
+            Thread.sleep(2000);
+            sendMarketDataFwdRequest_FullRefresh(sessionId);
+            Thread.sleep(2000);
+            sendMarketDataNDFRequest_FullRefresh(sessionId);
+            Thread.sleep(2000);
+            sendMarketDataSpotRequest_IncrementalRefresh(sessionId);
+            Thread.sleep(2000);
+            sendMarketDataFwdRequest_IncrementalRefresh(sessionId);
+            Thread.sleep(2000);
+            sendMarketDataNDFRequest_IncrementalRefresh(sessionId);
+        } catch (InterruptedException e) {
+            logger.error("Thread interrupted while sending request", e);
+        } catch (FieldNotFound fieldNotFound) {
+            logger.error("Field {} not found", fieldNotFound.field, fieldNotFound);
+        }
     }
 
-    private static void sendMarketDataSpotRequest_FullRefresh(SessionID sessionId) {
+    private static void sendMarketDataSpotRequest_FullRefresh(SessionID sessionId) throws FieldNotFound {
         MarketDataRequest marketDataRequest = RequestGenerator.generateMarketDataRequest_Spot_FullRefresh();
-        logger.info("New Marked Data Spot Full Refresh Request Sent: " + marketDataRequest.toString());
+        logger.info("SpotFullRefresh Request Sent for ReqId: " + marketDataRequest.getMDReqID().getValue() + " | " + marketDataRequest.toString());
         sendMessageToTarget(sessionId, marketDataRequest);
     }
 
-    private static void sendMarketDataFwdRequest_FullRefresh(SessionID sessionId) {
+    private static void sendMarketDataFwdRequest_FullRefresh(SessionID sessionId) throws FieldNotFound {
         MarketDataRequest marketDataRequest = RequestGenerator.generateMarketDataRequest_Fwd_FullRefresh();
-        logger.info("New Marked Data Forward Full Refresh Request Sent: " + marketDataRequest.toString());
+        logger.info("ForwardFullRefresh Request Sent for ReqId: " + marketDataRequest.getMDReqID().getValue() + " | " + marketDataRequest.toString());
         sendMessageToTarget(sessionId, marketDataRequest);
     }
 
-    private static void sendMarketDataNDFRequest_FullRefresh(SessionID sessionId) {
+    private static void sendMarketDataNDFRequest_FullRefresh(SessionID sessionId) throws FieldNotFound {
         MarketDataRequest marketDataRequest = RequestGenerator.generateMarketDataRequest_NDF_FullRefresh();
-        logger.info("New Marked Data NDF Full Refresh Request Sent: " + marketDataRequest.toString());
+        logger.info("NDFFullRefresh Request Sent for ReqId: " + marketDataRequest.getMDReqID().getValue() + " | " + marketDataRequest.toString());
         sendMessageToTarget(sessionId, marketDataRequest);
     }
 
-    private static void sendMarketDataSpotRequest_IncrementalRefresh(SessionID sessionId) {
+    private static void sendMarketDataSpotRequest_IncrementalRefresh(SessionID sessionId) throws FieldNotFound {
         MarketDataRequest marketDataRequest = RequestGenerator.generateMarketDataRequest_Spot_IncrementalRefresh();
-        logger.info("New Marked Data Spot Incremental Refresh Request Sent: " + marketDataRequest.toString());
+        logger.info("SpotIncrementalRefresh Request Sent for ReqId: " + marketDataRequest.getMDReqID().getValue() + " | " + marketDataRequest.toString());
         sendMessageToTarget(sessionId, marketDataRequest);
     }
 
-    private static void sendMarketDataFwdRequest_IncrementalRefresh(SessionID sessionId) {
+    private static void sendMarketDataFwdRequest_IncrementalRefresh(SessionID sessionId) throws FieldNotFound {
         MarketDataRequest marketDataRequest = RequestGenerator.generateMarketDataRequest_Fwd_IncrementalRefresh();
-        logger.info("New Marked Data Forward Incremental Refresh Request Sent: " + marketDataRequest.toString());
+        logger.info("ForwardIncrementalRefresh Request Sent for ReqId: " + marketDataRequest.getMDReqID().getValue() + " | " + marketDataRequest.toString());
         sendMessageToTarget(sessionId, marketDataRequest);
     }
 
-    private static void sendMarketDataNDFRequest_IncrementalRefresh(SessionID sessionId) {
+    private static void sendMarketDataNDFRequest_IncrementalRefresh(SessionID sessionId) throws FieldNotFound {
         MarketDataRequest marketDataRequest = RequestGenerator.generateMarketDataRequest_NDF_IncrementalRefresh();
-        logger.info("New Marked Data NDF Incremental Refresh Request Sent: " + marketDataRequest.toString());
+        logger.info("NDFIncrementalRefresh Request Sent for ReqId: " + marketDataRequest.getMDReqID().getValue() + " | " + marketDataRequest.toString());
         sendMessageToTarget(sessionId, marketDataRequest);
     }
 
