@@ -17,14 +17,10 @@ FIX client/server sample app for FX market data and trading using quickFix engin
 
 ## Types of Requests that are supported
 
-### Client/Initiator can send the different trading requests
-1. Spot
-2. Forward
-3. NDF
-4. Unsubscribe
-5. New Order Single
+### MarketData Requests
+1. Deal Types : Spot, Forward , NDF
+2. Full/Incremental Refresh
 
-### Server/Acceptor can handle all above mentioned requests from client and can send response according to the type of request it gets
-1. Full Refresh
-2. Incremental Refresh
-3. Execution Report
+### Trading
+1. NewOrderSingle
+2. ExcutionReports
