@@ -15,16 +15,16 @@ FIX client/server sample app for FX market data and trading using quickFix engin
 - You can modify the configurations of acceptor and initiator in `acceptorSettings.txt` and `initiatorSettings.txt` files.
 
 
-## Types of Requests that are supported by this Application
+## Types of Requests that are supported
 
-Client/Initiator can send the different market data requests:
+### Client/Initiator can send the different trading requests
 1. Spot
 2. Forward
 3. NDF
 4. Unsubscribe
 5. New Order Single
 
-Server/Acceptor can handle all above mentioned requests from client and can send response according to the type of request it gets:
+### Server/Acceptor can handle all above mentioned requests from client and can send response according to the type of request it gets
 1. Full Refresh
 2. Incremental Refresh
 3. Execution Report
