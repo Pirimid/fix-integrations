@@ -55,9 +55,9 @@ public class FxFixInitiator extends MessageCracker implements Application {
     public void onMessage(MarketDataSnapshotFullRefresh message, SessionID sessionId) throws FieldNotFound {
         String MDReqId = message.getMDReqID().getValue();
         MDEntryPx mdEntryPx = new MDEntryPx();
-        Double value = message.getField(mdEntryPx).getValue();
+        Double value = message.getGroup(1, NoMDEntries.FIELD).getField(mdEntryPx).getValue();
         logger.info("MDReqId: " + MDReqId + " | Price: " + value + " | FullRefresh");
-        if (value > 1.92) {
+        if (value > 1.9) {
             NewOrderSingle newOrderSingle = RequestGenerator.generateNewSellOrderSingle(message);
             sendNewOrderSingleRequest(newOrderSingle, sessionId);
         }
@@ -68,7 +68,7 @@ public class FxFixInitiator extends MessageCracker implements Application {
         MDEntryPx mdEntryPx = new MDEntryPx();
         Double value = message.getGroup(1, NoMDEntries.FIELD).getField(mdEntryPx).getValue();
         logger.info("MDReqId: " + MDReqId + " | Price: " + value + " | IncrementalRefresh");
-        if (value < 1.08) {
+        if (value < 1.1) {
             NewOrderSingle newOrderSingle = RequestGenerator.generateNewBuyOrderSingle(message);
             sendNewOrderSingleRequest(newOrderSingle, sessionId);
         }

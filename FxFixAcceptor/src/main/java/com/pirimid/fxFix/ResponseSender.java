@@ -101,7 +101,7 @@ public class ResponseSender {
                 marketDataSnapshotFullRefresh.setField(group.getField(new CharField(NDF)));
             }
             for (int i = 0; i < mdEntries.size(); i++) {
-                MarketDataSnapshotFullRefresh.NoMDEntries mdEntryGroup = prepareMDEntryGroup(mdEntries.get(i), i, isSpotRequest(settlTypeValue));
+                MarketDataSnapshotFullRefresh.NoMDEntries mdEntryGroup = (MarketDataSnapshotFullRefresh.NoMDEntries) prepareMDEntryGroup(mdEntries.get(i), i, isSpotRequest(settlTypeValue), true);
                 marketDataSnapshotFullRefresh.addGroup(mdEntryGroup);
             }
         } catch (FieldNotFound fieldNotFound) {
@@ -146,7 +146,7 @@ public class ResponseSender {
                 marketDataIncrementalRefresh.setField(group.getField(new CharField(NDF)));
             }
             for (int i = 0; i < mdEntries.size(); i++) {
-                MarketDataSnapshotFullRefresh.NoMDEntries mdEntryGroup = prepareMDEntryGroup(mdEntries.get(i), i, isSpotRequest(settlTypeValue));
+                MarketDataIncrementalRefresh.NoMDEntries mdEntryGroup = (MarketDataIncrementalRefresh.NoMDEntries) prepareMDEntryGroup(mdEntries.get(i), i, isSpotRequest(settlTypeValue), false);
                 marketDataIncrementalRefresh.addGroup(mdEntryGroup);
             }
         } catch (FieldNotFound fieldNotFound) {
@@ -155,12 +155,17 @@ public class ResponseSender {
         return marketDataIncrementalRefresh;
     }
 
-    private MarketDataSnapshotFullRefresh.NoMDEntries prepareMDEntryGroup(Group entryGroup, int index, boolean isSpotRequest) throws FieldNotFound {
+    private Group prepareMDEntryGroup(Group entryGroup, int index, boolean isSpotRequest, boolean isFullRefresh) throws FieldNotFound {
         Double price = Helper.generateNextPrice();
-        MarketDataSnapshotFullRefresh.NoMDEntries mdEntryGroup = new MarketDataSnapshotFullRefresh.NoMDEntries();
+        Group mdEntryGroup;
+        if(isFullRefresh) {
+            mdEntryGroup = new MarketDataSnapshotFullRefresh.NoMDEntries();
+        } else {
+            mdEntryGroup = new MarketDataIncrementalRefresh.NoMDEntries();
+        }
         mdEntryGroup.setField(new MDUpdateAction('0'));
         char mdEntryTypeValue = entryGroup.getField(new MDEntryType()).getValue();
-        mdEntryGroup.set(new MDEntryType(mdEntryTypeValue));
+        mdEntryGroup.setField(new MDEntryType(mdEntryTypeValue));
         if (isBidEntry(mdEntryTypeValue)) {
             if (isSpotRequest) {
                 mdEntryGroup.setField(new BidSpotRate(price));
@@ -175,10 +180,10 @@ public class ResponseSender {
             }
         }
         mdEntryGroup.setField(new MDEntryID("MDEntryId" + index));
-        mdEntryGroup.set(new MDEntryPx(price));
-        mdEntryGroup.set(new MDEntrySize(10000000));
-        mdEntryGroup.set(new QuoteEntryID("QuoteEntryId" + index));
-        mdEntryGroup.set(new MDEntryPositionNo(4));
+        mdEntryGroup.setField(new MDEntryPx(price));
+        mdEntryGroup.setField(new MDEntrySize(10000000));
+        mdEntryGroup.setField(new QuoteEntryID("QuoteEntryId" + index));
+        mdEntryGroup.setField(new MDEntryPositionNo(4));
         mdEntryGroup.setField(new MDQuoteType(1));
         return mdEntryGroup;
     }

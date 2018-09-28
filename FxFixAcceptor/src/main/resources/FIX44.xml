@@ -816,15 +816,17 @@
         <message name="MarketDataIncrementalRefresh" msgtype="X" msgcat="app">
             <field name="MDReqID" required="N"/>
             <group name="NoMDEntries" required="Y">
+                <field name="MDUpdateAction" required="Y"/>
                 <field name="MDEntryType" required="Y"/>
+                <field name="MDEntryID" required="Y"/>
                 <field name="MDEntryPx" required="Y"/>
                 <field name="MDEntrySize" required="Y"/>
                 <field name="QuoteEntryID" required="N"/>
                 <field name="MDEntryPositionNo" required="N"/>
-                <field name="MDEntryID" required="Y"/>
-                <field name="MDUpdateAction" required="Y"/>
-                <field name="MDQuoteType" required="Y"/>
+                <field name="Currency" required="N"/>
+                <field name="MDEntryDate" required="N"/>
                 <field name="MDEntryTime" required="N"/>
+                <field name="MDQuoteType" required="Y"/>
                 <field name="PipPlacement" required="N"/>
                 <field name="DeleteReason" required="N"/>
                 <field name="MDEntryRefID" required="N"/>
@@ -837,8 +839,6 @@
                 </group>
                 <field name="FinancialStatus" required="N"/>
                 <field name="CorporateAction" required="N"/>
-                <field name="Currency" required="N"/>
-                <field name="MDEntryDate" required="N"/>
                 <field name="TickDirection" required="N"/>
                 <field name="MDMkt" required="N"/>
                 <field name="TradingSessionID" required="N"/>
